@@ -21,17 +21,36 @@ def cargar_config(ruta=CONFIG):
 
 
 # --------------------------------------------------------------- universo
-def _consultar_screener(query, size, orden):
-    """Consulta el screener de Yahoo (compatible con varias versiones de yfinance)."""
-    try:
-        from yfinance import Screener
-        resp = Screener(query=query, size=size, sortField=orden, sortAsc=False).get()
-    except (ImportError, TypeError):
-        resp = yf.screen(query, size=size, sortField=orden, sortAsc=False)
-    except Exception as e:
-        print(f"  screener: error ({e})")
-        return []
-    return resp.get("quotes", []) if isinstance(resp, dict) else []
+def _consultar_screener(query, size):
+    """Consulta el screener probando varios criterios de orden hasta que uno
+    funcione (los nombres cambian según la versión de yfinance)."""
+    intentos = ("intradaymarketcap", "eodmarketcap", None)
+
+    for orden in intentos:
+        try:
+            from yfinance import Screener
+            if orden:
+                resp = Screener(query=query, size=size,
+                                sortField=orden, sortAsc=False).get()
+            else:
+                resp = Screener(query=query, size=size, sortAsc=False).get()
+        except (ImportError, TypeError):
+            try:
+                if orden:
+                    resp = yf.screen(query, size=size, sortField=orden, sortAsc=False)
+                else:
+                    resp = yf.screen(query, size=size, sortAsc=False)
+            except Exception as e:
+                print(f"  screener orden={orden}: {e}")
+                continue
+        except Exception as e:
+            print(f"  screener orden={orden}: {e}")
+            continue
+
+        filas = resp.get("quotes", []) if isinstance(resp, dict) else []
+        if filas:
+            return filas
+    return []
 
 
 def _dato(fila, *claves):
@@ -44,17 +63,21 @@ def _dato(fila, *claves):
 
 
 def _screen_sector(sector, cant, filtros):
-    """Top `cant` acciones del sector, ordenadas por market cap, con filtros.
-    El filtrado de cap/volumen se hace acá (en Python) y no en la consulta,
-    para no depender de los nombres de campos internos de Yahoo."""
-    from yfinance import EquityQuery as EQ
+    """Top `cant` acciones del sector por market cap. Se pide a Yahoo solo el
+    sector (una condición: máxima compatibilidad); cap, precio y volumen se
+    filtran acá en Python, con los nombres de campo que vengan."""
+    try:
+        from yfinance import EquityQuery as EQ
+        q = EQ("eq", ["sector", sector])
+    except ImportError:
+        print(f"  {sector}: esta versión de yfinance no tiene screener")
+        return []
 
-    q = EQ("eq", ["sector", sector]) & EQ("gt", ["eodprice", filtros["precio_min_usd"]])
-
-    filas = _consultar_screener(q, size=max(50, cant * 4), orden="intradaymarketcap")
+    filas = _consultar_screener(q, size=250)
 
     excluir = {t.upper() for t in filtros.get("excluir", [])}
     cap_min = filtros.get("market_cap_min_usd", 0)
+    precio_min = filtros.get("precio_min_usd", 0)
     vol_min = filtros.get("volumen_dolares_min", 0)
 
     candidatas = []
@@ -66,11 +89,13 @@ def _screen_sector(sector, cant, filtros):
                     "eodmarketcap", "marketCap", "marketcap")
         precio = _dato(f, "eodprice", "eodPrice", "regularMarketPrice")
         volumen = _dato(f, "eodvolume", "eodVolume", "regularMarketVolume")
-        vol_usd = precio * volumen if precio and volumen else 0
 
-        if cap_min and cap and cap < cap_min:
+        if precio_min and precio and precio < precio_min:
             continue
+        vol_usd = precio * volumen if precio and volumen else 0
         if vol_min and vol_usd and vol_usd < vol_min:
+            continue
+        if cap_min and cap and cap < cap_min:
             continue
         candidatas.append((sym, cap))
 
@@ -207,7 +232,7 @@ def preparar_datos(cfg):
     return resultados
 
 
-# --------------------------------------------------------------- prueba local
+# --------------------------------------------------------------- prueba
 if __name__ == "__main__":
     cfg = cargar_config()
     filas = preparar_datos(cfg)
