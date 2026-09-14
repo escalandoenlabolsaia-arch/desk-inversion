@@ -1,0 +1,65 @@
+{
+  "sectores": {
+    "Technology": 15,
+    "Communication Services": 15,
+    "Consumer Cyclical": 15,
+    "Consumer Defensive": 15,
+    "Energy": 15,
+    "Financial Services": 15,
+    "Healthcare": 15,
+    "Industrials": 15,
+    "Basic Materials": 15,
+    "Utilities": 15,
+    "Real Estate": 5
+  },
+  "etfs": {
+    "Technology": ["XLK", "VGT"],
+    "Communication Services": ["XLC", "VOX"],
+    "Consumer Cyclical": ["XLY", "VCR"],
+    "Consumer Defensive": ["XLP", "VDC"],
+    "Energy": ["XLE", "VDE"],
+    "Financial Services": ["XLF", "VFH"],
+    "Healthcare": ["XLV", "VHT"],
+    "Industrials": ["XLI", "VIS"],
+    "Basic Materials": ["XLB", "VAW"],
+    "Utilities": ["XLU", "VPU"],
+    "Real Estate": ["XLRE", "VNQ"]
+  },
+  "filtros": {
+    "market_cap_min_usd": 10000000000,
+    "precio_min_usd": 10,
+    "volumen_dolares_min": 50000000,
+    "ordenar_por": "marketcap",
+    "excluir": []
+  },
+  "volumen_inusual": {
+    "dias_promedio": 20,
+    "vigilancia": 2.0,
+    "alerta": 3.0,
+    "confirmacion_sector": {
+      "etf_min": 2.0,
+      "acciones_min": 3
+    }
+  },
+  "tecnicos": {
+    "ema200_max_sobre": 0.10,
+    "ema50_max_debajo": 0.05,
+    "rsi": { "periodo": 14, "sobrevendido": 30, "ventana_dias": 10 },
+    "macd": { "rapida": 12, "lenta": 26, "senal": 9, "ventana_dias": 5 },
+    "tendencia": { "meses": 6, "tramos": 3 }
+  },
+  "vwap_ancla": "2022-10-13",
+  "niveles": {
+    "setup_completo": 3,
+    "vigilancia": 2
+  },
+  "resumen_semanal_dia": "sunday",
+  "ia": {
+    "proveedor": "groq",
+    "modelo": "llama-3.3-70b-versatile",
+    "fallback": "plantilla"
+  },
+  "notificaciones": {
+    "servicio": "ntfy"
+  }
+}
