@@ -28,30 +28,49 @@ def _consultar_screener(query, size, orden):
         resp = Screener(query=query, size=size, sortField=orden, sortAsc=False).get()
     except (ImportError, TypeError):
         resp = yf.screen(query, size=size, sortField=orden, sortAsc=False)
+    except Exception as e:
+        print(f"  screener: error ({e})")
+        return []
     return resp.get("quotes", []) if isinstance(resp, dict) else []
 
 
+def _dato(fila, *claves):
+    """Primer valor no vacío entre varios nombres posibles de campo."""
+    for k in claves:
+        v = fila.get(k)
+        if v:
+            return v
+    return 0
+
+
 def _screen_sector(sector, cant, filtros):
-    """Top `cant` acciones del sector por market cap, aplicando filtros."""
+    """Top `cant` acciones del sector, ordenadas por market cap, con filtros.
+    El filtrado de cap/volumen se hace acá (en Python) y no en la consulta,
+    para no depender de los nombres de campos internos de Yahoo."""
     from yfinance import EquityQuery as EQ
 
-    q = (
-        EQ("eq", ["sector", sector])
-        & EQ("gt", ["marketcap", filtros["market_cap_min_usd"]])
-        & EQ("gt", ["eodprice", filtros["precio_min_usd"]])
-    )
+    q = EQ("eq", ["sector", sector]) & EQ("gt", ["eodprice", filtros["precio_min_usd"]])
 
     filas = _consultar_screener(q, size=max(50, cant * 4), orden="intradaymarketcap")
 
     excluir = {t.upper() for t in filtros.get("excluir", [])}
+    cap_min = filtros.get("market_cap_min_usd", 0)
+    vol_min = filtros.get("volumen_dolares_min", 0)
+
     candidatas = []
     for f in filas:
         sym = (f.get("symbol") or f.get("ticker") or "").upper()
         if not sym or sym in excluir:
             continue
-        cap = f.get("intradaymarketcap") or f.get("marketcap") or 0
-        vol_usd = (f.get("eodvolume") or 0) * (f.get("eodprice") or 0)
-        if filtros.get("volumen_dolares_min") and vol_usd and vol_usd < filtros["volumen_dolares_min"]:
+        cap = _dato(f, "intradaymarketcap", "intradayMarketCap",
+                    "eodmarketcap", "marketCap", "marketcap")
+        precio = _dato(f, "eodprice", "eodPrice", "regularMarketPrice")
+        volumen = _dato(f, "eodvolume", "eodVolume", "regularMarketVolume")
+        vol_usd = precio * volumen if precio and volumen else 0
+
+        if cap_min and cap and cap < cap_min:
+            continue
+        if vol_min and vol_usd and vol_usd < vol_min:
             continue
         candidatas.append((sym, cap))
 
