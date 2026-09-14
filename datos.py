@@ -6,6 +6,7 @@ Solo obtiene datos y números. Las decisiones las toman agentes.py y main.py.
 
 import json
 import math
+import re
 from datetime import date, timedelta
 
 import pandas as pd
@@ -63,9 +64,9 @@ def _dato(fila, *claves):
 
 
 def _screen_sector(sector, cant, filtros):
-    """Top `cant` acciones del sector por market cap. Se pide a Yahoo solo el
-    sector (una condición: máxima compatibilidad); cap, precio y volumen se
-    filtran acá en Python, con los nombres de campo que vengan."""
+    """Top `cant` acciones de EE.UU. del sector por market cap. A Yahoo se le
+    pide solo el sector (máxima compatibilidad); todos los filtros —incluido
+    'solo EE.UU.'— se aplican acá en Python."""
     try:
         from yfinance import EquityQuery as EQ
         q = EQ("eq", ["sector", sector])
@@ -75,6 +76,10 @@ def _screen_sector(sector, cant, filtros):
 
     filas = _consultar_screener(q, size=250)
 
+    # Solo tickers de EE.UU.: letras/números/guiones, sin sufijo de bolsa
+    # extranjera (.BA = Buenos Aires, .KS = Corea, .TO = Toronto, .L = Londres)
+    solo_us = re.compile(r"^[A-Z0-9]+(-[A-Z0-9]+)?$")
+
     excluir = {t.upper() for t in filtros.get("excluir", [])}
     cap_min = filtros.get("market_cap_min_usd", 0)
     precio_min = filtros.get("precio_min_usd", 0)
@@ -83,7 +88,7 @@ def _screen_sector(sector, cant, filtros):
     candidatas = []
     for f in filas:
         sym = (f.get("symbol") or f.get("ticker") or "").upper()
-        if not sym or sym in excluir:
+        if not sym or sym in excluir or not solo_us.match(sym):
             continue
         cap = _dato(f, "intradaymarketcap", "intradayMarketCap",
                     "eodmarketcap", "marketCap", "marketcap")
@@ -114,7 +119,7 @@ def armar_universo(cfg):
             continue
         for t in lista:
             acciones[t] = sector
-        print(f"  {sector}: {len(lista)} acciones")
+        print(f"  {sector}: {len(lista)} → {' '.join(lista)}")
     for sector, lista in cfg["etfs"].items():
         for t in lista:
             etfs[t] = sector
