@@ -34,8 +34,8 @@
   },
   "volumen_inusual": {
     "dias_promedio": 20,
-    "vigilancia": 2.0,
-    "alerta": 3.0,
+    "vigilancia": 1.5,
+    "alerta": 2.5,
     "confirmacion_sector": {
       "etf_min": 2.0,
       "acciones_min": 3
@@ -43,9 +43,9 @@
   },
   "tecnicos": {
     "ema200_max_sobre": 0.10,
-    "ema50_max_debajo": 0.05,
-    "rsi": { "periodo": 14, "sobrevendido": 30, "ventana_dias": 10 },
-    "macd": { "rapida": 12, "lenta": 26, "senal": 9, "ventana_dias": 5 },
+    "ema50_max_debajo": 0.08,
+    "rsi": { "periodo": 14, "sobrevendido": 35, "ventana_dias": 20 },
+    "macd": { "rapida": 12, "lenta": 26, "senal": 9, "ventana_dias": 10 },
     "tendencia": { "meses": 6, "tramos": 3 }
   },
   "vwap_ancla": "2022-10-13",
@@ -75,7 +75,12 @@
   },
   "insiders": {
     "dias": 15,
-    "max_formularios": 8
+    "max_formularios": 8,
+    "solo_setups": false,
+    "solo_compras": true,
+    "monto_min_usd": 100000,
+    "max_nombres": 6,
+    "dedup_dias": 15
   },
   "sec_edgar": {
     "email": "escalandoenlabolsaia@gmail.com",
