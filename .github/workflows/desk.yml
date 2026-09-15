@@ -3,7 +3,7 @@ name: desk-inversion
 on:
   workflow_dispatch:          # botón "Run workflow" para pruebas manuales
   schedule:
-    - cron: "0 23 * * 1-5"    # lunes a viernes, 23:00 UTC (20:00 hs Argentina)
+    - cron: "0 23 * * 0-5"    # lun a vie + domingo (resumen semanal), 23:00 UTC
 
 jobs:
   correr:
@@ -24,7 +24,7 @@ jobs:
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-        run: python3 agentes.py    # TEMPORAL: prueba de agentes. Después → main.py
+        run: python3 main.py
 
       - name: Guardar historial
         run: |
