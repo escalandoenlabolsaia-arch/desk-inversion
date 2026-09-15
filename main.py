@@ -1,5 +1,13 @@
 """
 main.py - Orquestador del desk: evalua, redacta y notifica.
+
+- Setups (3 senales) y sectores confirmados -> ntfy inmediato.
+- Vigilancias (2 senales) -> solo en el resumen semanal.
+- Respaldo institucional (13F): si 2 o mas fondos tienen la accion,
+  una vigilancia se promueve a setup.
+- Insiders (Form 4): se consultan solo para los setups finales.
+- Analisis con Groq (gratis) y respaldo de plantilla local.
+- Si la corrida falla, avisa por ntfy (watchdog).
 """
 
 import csv
@@ -18,6 +26,7 @@ DIAS_SEMANA = {"monday": 0, "tuesday": 1, "wednesday": 2, "thursday": 3,
                "friday": 4, "saturday": 5, "sunday": 6}
 
 
+# --------------------------------------------------------------- csv de enviados
 def crear_csv_si_falta(archivo, cabecera):
     if not os.path.exists(archivo):
         with open(archivo, "w", newline="", encoding="utf-8") as f:
@@ -30,6 +39,7 @@ def agregar_fila(archivo, fila):
 
 
 def enviados_recientes(archivo, dias):
+    """Claves enviadas en los ultimos N dias: {clave: fecha}."""
     recientes = {}
     if not os.path.exists(archivo):
         return recientes
@@ -45,7 +55,9 @@ def enviados_recientes(archivo, dias):
     return recientes
 
 
+# --------------------------------------------------------------- SEC EDGAR
 def crear_edgar(cfg):
+    """Construye el cliente SEC desde el config. None si falta la seccion."""
     sec = cfg.get("sec_edgar") or {}
     if not sec.get("email") or not sec.get("fondos"):
         return None
@@ -60,6 +72,7 @@ def crear_edgar(cfg):
 
 
 def promover_con_fondos(res, min_fondos=2):
+    """Vigilancia (2 senales) con respaldo institucional se vuelve setup."""
     quedan = []
     for f in res["vigilancia"]:
         if f.get("n_fondos", 0) >= min_fondos:
@@ -74,6 +87,7 @@ def promover_con_fondos(res, min_fondos=2):
 
 
 def enriquecer_insiders(setups, edgar):
+    """Form 4 solo para los setups finales (evita decenas de peticiones)."""
     for f in setups:
         try:
             f["insiders"] = edgar.actividad_insiders(f["ticker"], f.get("cik"))
@@ -84,6 +98,7 @@ def enriquecer_insiders(setups, edgar):
 
 
 def texto_insiders(ins):
+    """Linea opcional con la actividad de insiders del setup."""
     if not ins or not ins.get("formularios"):
         return None
     if ins["compras"] and ins["compras"] >= ins["ventas"]:
@@ -93,7 +108,9 @@ def texto_insiders(ins):
     return None
 
 
+# --------------------------------------------------------------- analisis IA
 def plantilla_analisis(f):
+    """Respaldo local: redacta con reglas si Groq no esta disponible."""
     partes = []
     if f["rsi_dias"] is not None:
         partes.append(f"RSI {f['rsi']:.0f} con suelo hace {f['rsi_dias']} dia(s)")
@@ -155,6 +172,7 @@ def analisis_groq(f):
         return None
 
 
+# --------------------------------------------------------------- redaccion
 def texto_setup(f, analisis):
     l = [f"SETUP COMPRA - {f['ticker']} ({f['sector']})"]
     l.append(f"Precio: USD {f['precio']} - {f['dist_ema200'] * 100:+.1f}% vs EMA200 - "
@@ -232,4 +250,116 @@ def texto_resumen(cfg, filas, res, edgar=None):
         l.append(f"Mas extendido sobre VWAP-2022: {top['ticker']} {top['pct_vwap']:+.1f}% "
                  "(faro de euforia del ciclo)")
     l.append("")
-    l.append
+    l.append("Silencio durante la semana = sin setups bajo tus criterios.")
+    return "\n".join(l)
+
+
+# --------------------------------------------------------------- ntfy
+def enviar_ntfy(topic, texto, titulo="Desk de inversion"):
+    MAX = 3800
+    partes, resto = [], texto
+    while len(resto) > MAX:
+        corte = resto.rfind("\n", 0, MAX)
+        if corte == -1:
+            corte = MAX
+        partes.append(resto[:corte])
+        resto = resto[corte:].lstrip("\n")
+    if resto:
+        partes.append(resto)
+
+    for i, parte in enumerate(partes, start=1):
+        ok = False
+        for intento in range(3):
+            try:
+                r = requests.post(
+                    f"https://ntfy.sh/{topic}",
+                    data=parte.encode("utf-8"),
+                    headers={"Title": titulo, "Priority": "high",
+                             "Tags": "chart", "Markdown": "yes"},
+                    timeout=30,
+                )
+                r.raise_for_status()
+                ok = True
+                break
+            except Exception as e:
+                print(f"  intento {intento + 1} fallo: {e}")
+                time.sleep(5)
+        print(f"Parte {i}/{len(partes)}: {'enviada OK' if ok else 'FALLO'}")
+        if not ok:
+            raise RuntimeError(f"No se pudo enviar la parte {i}")
+        time.sleep(2)
+
+
+# --------------------------------------------------------------- orquestacion
+def main():
+    cfg = cargar_config()
+    filas = preparar_datos(cfg)
+    res = evaluar(filas, cfg)
+    hoy = date.today()
+
+    topic = os.environ.get("NTFY_TOPIC")
+    if not topic:
+        raise RuntimeError("Falta el secret NTFY_TOPIC")
+
+    # --- Capa SEC EDGAR: fondos institucionales + insiders ---
+    edgar = crear_edgar(cfg)
+    if edgar:
+        try:
+            edgar.posiciones_todos_fondos(solo_recientes=False)
+            filas = edgar.marcar_fondos(filas)
+            res = promover_con_fondos(res, min_fondos=2)
+            enriquecer_insiders(res["setups"], edgar)
+        except Exception as e:
+            print(f"  AVISO: EDGAR fallo, se sigue sin datos institucionales: {e}")
+            edgar = None
+    # ---
+
+    crear_csv_si_falta(ENVIADOS, ["clave", "fecha"])
+    recientes = enviados_recientes(ENVIADOS, dias=7)
+
+    mensajes = []
+
+    # Setups que no se hayan avisado en los ultimos 7 dias
+    for f in res["setups"]:
+        clave = f"setup-{f['ticker']}"
+        if clave in recientes:
+            print(f"  {f['ticker']}: ya avisado esta semana, se omite")
+            continue
+        analisis = analisis_groq(f) or plantilla_analisis(f)
+        mensajes.append(texto_setup(f, analisis))
+        agregar_fila(ENVIADOS, [clave, hoy.isoformat()])
+
+    # Sectores confirmados (tambien con deduplicacion semanal)
+    for s in res["sectores"]:
+        clave = f"sector-{s['sector']}"
+        if clave in recientes:
+            continue
+        mensajes.append(texto_sector(s))
+        agregar_fila(ENVIADOS, [clave, hoy.isoformat()])
+
+    # Resumen semanal (el dia configurado, se manda siempre)
+    dia_resumen = DIAS_SEMANA.get(cfg.get("resumen_semanal_dia", "sunday"), 6)
+    if hoy.weekday() == dia_resumen:
+        mensajes.append(texto_resumen(cfg, filas, res, edgar))
+
+    if mensajes:
+        enviar_ntfy(topic, "\n\n---\n\n".join(mensajes))
+        print(f"Enviado: {len(mensajes)} bloque(s) OK")
+    else:
+        print(f"Sin setups ni sectores nuevos. "
+              f"Silencio (vigilancias: {len(res['vigilancia'])}).")
+
+
+# --------------------------------------------------------------- arranque
+if __name__ == "__main__":
+    try:
+        main()
+    except Exception as e:
+        topic = os.environ.get("NTFY_TOPIC")
+        if topic:
+            try:
+                enviar_ntfy(topic, f"Desk de inversion: la corrida fallo. {e}",
+                            titulo="Desk - ERROR")
+            except Exception:
+                pass
+        raise
