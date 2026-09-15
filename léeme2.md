@@ -1,3 +1,7 @@
+> ⚠️ VERSIÓN VIEJA (histórico del proyecto) — NO es el estado actual.
+> El README vigente es leeme3.md. Si estás en un chat nuevo y vas a usar
+> este archivo como memoria, frená: usá leeme3.md. Este se conserva solo
+> como registro de cómo evolucionó el sistema.
 ¡Muy buena la idea del README como memoria! Pero detecté algo importante antes de que lo commites: **ese README describe el sistema de ANTES** — no incluye toda la capa de SEC EDGAR que acabamos de agregar y probar hoy (`sec_edgar.py`, fondos 13F, promoción de vigilancias, insiders). Si lo guardás así, en un chat nuevo el Claude no va a saber que esa capa existe.
 
 Te lo dejo **actualizado con todo lo de esta sesión**. Reemplazá TODO el contenido de tu `README.md` por esto:
