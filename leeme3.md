@@ -134,6 +134,7 @@ Insiders: 2 compras vs 0 ventas (neto +$4.1M)
 | `insiders.max_nombres` | 6 | Tope de tickers en el bloque 🐋 |
 | `insiders.dedup_dias` | 15 | Días sin repetir el mismo ticker |
 | `sec_edgar.email` | (el declarado en config.json) | User-Agent exigido por la SEC |
+| `ia.modelo` | openai/gpt-oss-120b | Modelo Groq del análisis IA. Si da 404, el modelo dejó de estar disponible para el plan: elegir otro en console.groq.com/docs/models y cambiar SOLO esta línea |
 | `sec_edgar.dias_filings` | 21 | Ventana de búsqueda (el 13F usado es siempre el último disponible) |
 | `sec_edgar.fondos` | 7 fondos con CIK | Berkshire, Pershing, Scion, Third Point, Viking, Lone Pine, Coatue |
 | `fundamentos` | pe_max 40, pb_max 10, etc. | **NO conectado al flujo actual** (sección definida pero sin uso en datos/agentes/main). No editar: no tiene efecto. |
