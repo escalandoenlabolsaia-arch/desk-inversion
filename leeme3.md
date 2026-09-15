@@ -189,6 +189,11 @@ Insiders: 2 compras vs 0 ventas (neto +$4.1M)
 
 ## Problemas ya resueltos (no volver a pisarlos)
 
+- **Groq 404 en chat/completions**: el modelo dejó de estar disponible para el
+  plan (llama-3.3-70b pasó a Enterprise). Los llama-3.x hoy son Enterprise;
+  los accesibles self-serve son los openai/gpt-oss-*. Elegir Production, nunca
+  Preview. Fix = una línea en ia.modelo (el código ya lo lee del config).
+  Los gpt-oss razonan: el código pide reasoning_effort low y recorta a 2 líneas.
 - **main.py copiado a medias**: corrida de 1 segundo, verde, no hace nada.
   Verificar última línea = `raise`. Reemplazar archivos completos.
 - **Texto IA con "suelo bajo 30" hardcodeado**: al recalibrar a 35, el texto
