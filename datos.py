@@ -1,10 +1,12 @@
 """
 datos.py — Arma el universo de activos y calcula todos los indicadores.
 
-Universo: S&P 500 desde Wikipedia (fuente principal) o screener de Yahoo
-(plan B). Solo obtiene datos y números; las decisiones las toman agentes.py.
+Universo: S&P 500 (Wikipedia o dataset espejo en GitHub) con screener de
+Yahoo como último recurso. Solo obtiene datos; las decisiones las toman
+agentes.py y main.py.
 """
 
+import io
 import json
 import math
 import re
@@ -12,11 +14,12 @@ import time
 from datetime import date, timedelta
 
 import pandas as pd
+import requests
 import yfinance as yf
 
 CONFIG = "config.json"
 
-# Nombres de sector del config -> nombres GICS de la tabla del S&P 500
+# Nombres de sector del config -> nombres GICS de las fuentes del S&P 500
 MAPA_GICS = {
     "Technology": "Information Technology",
     "Communication Services": "Communication Services",
@@ -39,36 +42,88 @@ def cargar_config(ruta=CONFIG):
 
 
 # --------------------------------------------------------------- universo
-def _cargar_sp500():
-    """Descarga la tabla del S&P 500 desde Wikipedia: símbolo + sector GICS.
-    Estable, un solo pedido, y las empresas ya son grandes por definición."""
+CABECERAS = {
+    "User-Agent": ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                   "AppleWebKit/537.36 (KHTML, like Gecko) "
+                   "Chrome/124.0 Safari/537.36"),
+    "Accept-Language": "en-US,en;q=0.9",
+}
+
+
+def _parsear_fila_sp500(sym, sec):
+    sym = str(sym).strip().upper().replace(".", "-")
+    sec = str(sec).strip()
+    if sym and sym != "NAN":
+        return {"symbol": sym, "sector_gics": sec}
+    return None
+
+
+def _sp500_wikipedia():
+    """Fuente 1: tabla del S&P 500 en Wikipedia, descargada como navegador
+    (Wikipedia rechaza clientes sin User-Agent válido con error 403)."""
     url = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
     ultimo_error = None
     for intento in range(3):
         try:
-            tablas = pd.read_html(url)
+            r = requests.get(url, headers=CABECERAS, timeout=30)
+            r.raise_for_status()
+            tablas = pd.read_html(io.StringIO(r.text))
             tabla = tablas[0]
             tabla.columns = [str(c).strip() for c in tabla.columns]
             col_sym = next(c for c in tabla.columns if c.lower() == "symbol")
             col_sec = next(c for c in tabla.columns if "gics sector" in c.lower())
             salida = []
             for _, f in tabla.iterrows():
-                sym = str(f[col_sym]).strip().upper().replace(".", "-")
-                sec = str(f[col_sec]).strip()
-                if sym and sym != "NAN":
-                    salida.append({"symbol": sym, "sector_gics": sec})
+                fila = _parsear_fila_sp500(f[col_sym], f[col_sec])
+                if fila:
+                    salida.append(fila)
             if len(salida) >= 400:
+                print(f"S&P 500 desde Wikipedia: {len(salida)} empresas")
                 return salida
             ultimo_error = RuntimeError(f"tabla con pocas filas ({len(salida)})")
         except Exception as e:
             ultimo_error = e
             print(f"  Wikipedia intento {intento + 1} falló: {e}")
             time.sleep(4)
-    raise RuntimeError(f"No se pudo leer el S&P 500 ({ultimo_error})")
+    raise RuntimeError(f"Wikipedia agotó intentos ({ultimo_error})")
+
+
+def _sp500_dataset():
+    """Fuente 2: dataset espejo del S&P 500 en GitHub (constituents.csv).
+    raw.githubusercontent.com es siempre accesible desde los runners."""
+    url = ("https://raw.githubusercontent.com/datasets/s-and-p-500-companies/"
+           "main/data/constituents.csv")
+    r = requests.get(url, headers=CABECERAS, timeout=30)
+    r.raise_for_status()
+    df = pd.read_csv(io.StringIO(r.text))
+    df.columns = [str(c).strip() for c in df.columns]
+    col_sym = next(c for c in df.columns if c.lower() == "symbol")
+    col_sec = next(c for c in df.columns if "sector" in c.lower())
+    salida = []
+    for _, f in df.iterrows():
+        fila = _parsear_fila_sp500(f[col_sym], f[col_sec])
+        if fila:
+            salida.append(fila)
+    if len(salida) < 400:
+        raise RuntimeError(f"dataset con pocas filas ({len(salida)})")
+    print(f"S&P 500 desde dataset GitHub: {len(salida)} empresas")
+    return salida
+
+
+def _cargar_sp500():
+    """Devuelve la lista del S&P 500 (símbolo + sector GICS) probando fuentes."""
+    errores = []
+    for fuente in (_sp500_wikipedia, _sp500_dataset):
+        try:
+            return fuente()
+        except Exception as e:
+            print(f"  fuente {fuente.__name__} falló: {e}")
+            errores.append(str(e))
+    raise RuntimeError("; ".join(errores))
 
 
 def _consultar_screener(query, size):
-    """(Plan B) Consulta el screener de Yahoo probando varios órdenes."""
+    """(Último recurso) Consulta el screener de Yahoo probando varios órdenes."""
     intentos = ("intradaymarketcap", "eodmarketcap", None)
     for orden in intentos:
         try:
@@ -106,7 +161,7 @@ def _dato(fila, *claves):
 
 
 def _screen_sector(sector, cant, filtros):
-    """(Plan B) Acciones de EE.UU. del sector vía screener de Yahoo."""
+    """(Último recurso) Acciones de EE.UU. del sector vía screener de Yahoo."""
     try:
         from yfinance import EquityQuery as EQ
         q = EQ("eq", ["sector", sector])
@@ -145,8 +200,8 @@ def _screen_sector(sector, cant, filtros):
 
 def armar_universo(cfg):
     """Devuelve ({ticker: sector} acciones candidatas, {ticker: sector} etfs).
-    De las acciones se baja TODO el S&P 500; el top de cada sector se elige
-    después de medir la liquidez real (en preparar_datos)."""
+    Se baja TODO el S&P 500; el top de cada sector se elige en preparar_datos
+    tras medir la liquidez real de cada empresa."""
     etfs = {}
     for sector, lista in cfg["etfs"].items():
         for t in lista:
@@ -157,7 +212,6 @@ def armar_universo(cfg):
 
     try:
         sp = _cargar_sp500()
-        print(f"S&P 500 desde Wikipedia: {len(sp)} empresas")
         por_gics = {}
         for a in sp:
             if a["symbol"] in excluir:
@@ -170,7 +224,7 @@ def armar_universo(cfg):
                 acciones[t] = sector_cfg
             print(f"  {sector_cfg}: {len(lista)} candidatas (S&P)")
     except Exception as e:
-        print(f"Fuente S&P 500 falló ({e}) — uso screener de Yahoo como respaldo")
+        print(f"Fuentes S&P 500 fallaron ({e}) — uso screener de Yahoo")
         for sector_cfg, cant in cfg["sectores"].items():
             try:
                 lista = _screen_sector(sector_cfg, cant, cfg["filtros"])
