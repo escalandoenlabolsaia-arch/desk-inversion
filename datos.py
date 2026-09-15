@@ -1,7 +1,8 @@
 """
 datos.py — Arma el universo de activos y calcula todos los indicadores.
 
-Solo obtiene datos y números. Las decisiones las toman agentes.py y main.py.
+Universo: S&P 500 desde Wikipedia (fuente principal) o screener de Yahoo
+(plan B). Solo obtiene datos y números; las decisiones las toman agentes.py.
 """
 
 import json
@@ -11,10 +12,24 @@ import time
 from datetime import date, timedelta
 
 import pandas as pd
-import requests
 import yfinance as yf
 
 CONFIG = "config.json"
+
+# Nombres de sector del config -> nombres GICS de la tabla del S&P 500
+MAPA_GICS = {
+    "Technology": "Information Technology",
+    "Communication Services": "Communication Services",
+    "Consumer Cyclical": "Consumer Discretionary",
+    "Consumer Defensive": "Consumer Staples",
+    "Energy": "Energy",
+    "Financial Services": "Financials",
+    "Healthcare": "Health Care",
+    "Industrials": "Industrials",
+    "Basic Materials": "Materials",
+    "Utilities": "Utilities",
+    "Real Estate": "Real Estate",
+}
 
 
 # --------------------------------------------------------------- config
@@ -24,61 +39,37 @@ def cargar_config(ruta=CONFIG):
 
 
 # --------------------------------------------------------------- universo
-def _cargar_acciones_us():
-    """Descarga en UNA llamada la lista de acciones de EE.UU. con sector,
-    market cap, precio y volumen. Fuente: stockanalysis.com (sin clave).
-    Es la fuente principal; Yahoo queda como respaldo."""
-    url = ("https://stockanalysis.com/api/screener/s/f"
-           "?m=marketCap&s=desc&cn=5000&i=stocks"
-           "&c=s,n,marketCap,price,volume,sector")
-    cab = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
-
-    j = None
+def _cargar_sp500():
+    """Descarga la tabla del S&P 500 desde Wikipedia: símbolo + sector GICS.
+    Estable, un solo pedido, y las empresas ya son grandes por definición."""
+    url = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
     ultimo_error = None
     for intento in range(3):
         try:
-            r = requests.get(url, timeout=30, headers=cab)
-            r.raise_for_status()
-            j = r.json()
-            break
+            tablas = pd.read_html(url)
+            tabla = tablas[0]
+            tabla.columns = [str(c).strip() for c in tabla.columns]
+            col_sym = next(c for c in tabla.columns if c.lower() == "symbol")
+            col_sec = next(c for c in tabla.columns if "gics sector" in c.lower())
+            salida = []
+            for _, f in tabla.iterrows():
+                sym = str(f[col_sym]).strip().upper().replace(".", "-")
+                sec = str(f[col_sec]).strip()
+                if sym and sym != "NAN":
+                    salida.append({"symbol": sym, "sector_gics": sec})
+            if len(salida) >= 400:
+                return salida
+            ultimo_error = RuntimeError(f"tabla con pocas filas ({len(salida)})")
         except Exception as e:
             ultimo_error = e
-            print(f"  stockanalysis intento {intento + 1} falló: {e}")
-            time.sleep(3)
-    if j is None:
-        raise RuntimeError(f"stockanalysis no respondió ({ultimo_error})")
-
-    data = j.get("data")
-    filas = data.get("data", []) if isinstance(data, dict) else (data or [])
-    if not isinstance(filas, list) or not filas:
-        raise RuntimeError("respuesta de stockanalysis vacía o con formato nuevo")
-
-    formato_ticker = re.compile(r"^[A-Z]{1,5}(?:[-.][A-Z]{1,3})?$")
-    acciones = []
-    for f in filas:
-        try:
-            sym, _nombre, cap, precio, vol, sector = f[0], f[1], f[2], f[3], f[4], f[5]
-        except (IndexError, TypeError, ValueError):
-            continue
-        if not isinstance(sym, str) or not formato_ticker.match(sym):
-            continue
-        acciones.append({
-            "symbol": sym.upper().replace(".", "-"),   # BRK.B -> BRK-B (formato yfinance)
-            "sector": sector if isinstance(sector, str) else "",
-            "marketcap": cap if isinstance(cap, (int, float)) else 0,
-            "price": precio if isinstance(precio, (int, float)) else 0,
-            "volume": vol if isinstance(vol, (int, float)) else 0,
-        })
-
-    if sum(1 for a in acciones if a["sector"]) < 100:
-        raise RuntimeError("formato de stockanalysis inesperado (pocos datos válidos)")
-    return acciones
+            print(f"  Wikipedia intento {intento + 1} falló: {e}")
+            time.sleep(4)
+    raise RuntimeError(f"No se pudo leer el S&P 500 ({ultimo_error})")
 
 
 def _consultar_screener(query, size):
-    """(Respaldo) Consulta el screener de Yahoo probando varios criterios de orden."""
+    """(Plan B) Consulta el screener de Yahoo probando varios órdenes."""
     intentos = ("intradaymarketcap", "eodmarketcap", None)
-
     for orden in intentos:
         try:
             from yfinance import Screener
@@ -99,7 +90,6 @@ def _consultar_screener(query, size):
         except Exception as e:
             print(f"  screener orden={orden}: {e}")
             continue
-
         filas = resp.get("quotes", []) if isinstance(resp, dict) else []
         if filas:
             return filas
@@ -116,7 +106,7 @@ def _dato(fila, *claves):
 
 
 def _screen_sector(sector, cant, filtros):
-    """(Respaldo Yahoo) Top `cant` acciones de EE.UU. del sector por market cap."""
+    """(Plan B) Acciones de EE.UU. del sector vía screener de Yahoo."""
     try:
         from yfinance import EquityQuery as EQ
         q = EQ("eq", ["sector", sector])
@@ -125,12 +115,11 @@ def _screen_sector(sector, cant, filtros):
         return []
 
     filas = _consultar_screener(q, size=250)
-
     solo_us = re.compile(r"^[A-Z0-9]+(-[A-Z0-9]+)?$")
     excluir = {t.upper() for t in filtros.get("excluir", [])}
-    cap_min = filtros.get("market_cap_min_usd", 0)
     precio_min = filtros.get("precio_min_usd", 0)
     vol_min = filtros.get("volumen_dolares_min", 0)
+    cap_min = filtros.get("market_cap_min_usd", 0)
 
     candidatas = []
     for f in filas:
@@ -141,7 +130,6 @@ def _screen_sector(sector, cant, filtros):
                     "eodmarketcap", "marketCap", "marketcap")
         precio = _dato(f, "eodprice", "eodPrice", "regularMarketPrice")
         volumen = _dato(f, "eodvolume", "eodVolume", "regularMarketVolume")
-
         if precio_min and precio and precio < precio_min:
             continue
         vol_usd = precio * volumen if precio and volumen else 0
@@ -156,54 +144,46 @@ def _screen_sector(sector, cant, filtros):
 
 
 def armar_universo(cfg):
-    """Devuelve ({ticker: sector} acciones, {ticker: sector} etfs)."""
-    acciones, etfs = {}, {}
-    excluir = {t.upper() for t in cfg["filtros"].get("excluir", [])}
-    cap_min = cfg["filtros"].get("market_cap_min_usd", 0)
-    precio_min = cfg["filtros"].get("precio_min_usd", 0)
-    vol_min = cfg["filtros"].get("volumen_dolares_min", 0)
-
-    try:
-        base = _cargar_acciones_us()
-        print(f"Fuente principal: {len(base)} acciones de EE.UU. descargadas")
-    except Exception as e:
-        print(f"Fuente principal falló ({e}) — uso screener de Yahoo como respaldo")
-        base = None
-
-    if base:
-        for sector, cant in cfg["sectores"].items():
-            candidatas = [
-                a for a in base
-                if a["sector"] == sector
-                and a["symbol"] not in excluir
-                and (not cap_min or a["marketcap"] >= cap_min)
-                and (not precio_min or a["price"] >= precio_min)
-                and (not vol_min or a["price"] * a["volume"] >= vol_min)
-            ]
-            candidatas.sort(key=lambda a: -a["marketcap"])
-            lista = [a["symbol"] for a in candidatas[:cant]]
-            for t in lista:
-                acciones[t] = sector
-            print(f"  {sector}: {len(lista)} → {' '.join(lista)}")
-    else:
-        for sector, cant in cfg["sectores"].items():
-            try:
-                lista = _screen_sector(sector, cant, cfg["filtros"])
-            except Exception as e:
-                print(f"  {sector}: error en respaldo ({e})")
-                time.sleep(2)
-                continue
-            for t in lista:
-                acciones[t] = sector
-            print(f"  {sector}: {len(lista)} → {' '.join(lista)}")
-            time.sleep(2)
-
+    """Devuelve ({ticker: sector} acciones candidatas, {ticker: sector} etfs).
+    De las acciones se baja TODO el S&P 500; el top de cada sector se elige
+    después de medir la liquidez real (en preparar_datos)."""
+    etfs = {}
     for sector, lista in cfg["etfs"].items():
         for t in lista:
             etfs[t] = sector
-    print(f"Universo: {len(acciones)} acciones + {len(etfs)} ETFs")
-    if not acciones:
-        raise RuntimeError("No se pudo armar el universo de acciones.")
+
+    excluir = {t.upper().replace(".", "-") for t in cfg["filtros"].get("excluir", [])}
+    acciones = {}
+
+    try:
+        sp = _cargar_sp500()
+        print(f"S&P 500 desde Wikipedia: {len(sp)} empresas")
+        por_gics = {}
+        for a in sp:
+            if a["symbol"] in excluir:
+                continue
+            por_gics.setdefault(a["sector_gics"], []).append(a["symbol"])
+        for sector_cfg, cant in cfg["sectores"].items():
+            gics = MAPA_GICS.get(sector_cfg, sector_cfg)
+            lista = por_gics.get(gics, [])
+            for t in lista:
+                acciones[t] = sector_cfg
+            print(f"  {sector_cfg}: {len(lista)} candidatas (S&P)")
+    except Exception as e:
+        print(f"Fuente S&P 500 falló ({e}) — uso screener de Yahoo como respaldo")
+        for sector_cfg, cant in cfg["sectores"].items():
+            try:
+                lista = _screen_sector(sector_cfg, cant, cfg["filtros"])
+            except Exception as err:
+                print(f"  {sector_cfg}: error en respaldo ({err})")
+                time.sleep(2)
+                continue
+            for t in lista:
+                acciones[t] = sector_cfg
+            print(f"  {sector_cfg}: {len(lista)} candidatas (Yahoo)")
+            time.sleep(2)
+
+    print(f"Universo pre-descarga: {len(acciones)} acciones + {len(etfs)} ETFs")
     return acciones, etfs
 
 
@@ -247,13 +227,14 @@ def indicadores(sub, cfg):
     cruce = (dif.shift(1) < 0) & (dif >= 0)
     macd_dias = _dias_desde(cruce, tec["macd"]["ventana_dias"])
 
-    # Volumen: hoy vs promedio de los N días anteriores
+    # Volumen: hoy vs promedio, y liquidez media en dólares (elige el top por sector)
     n = cfg["volumen_inusual"]["dias_promedio"]
     vol_hoy = float(v.iloc[-1])
     vol_prom = float(v.iloc[-(n + 1):-1].mean())
     vol_ratio = round(vol_hoy / vol_prom, 2) if vol_prom > 0 else 0.0
+    vol_usd_prom = float((c * v).iloc[-(n + 1):-1].mean())
 
-    # Tendencia HH/HL: últimos meses divididos en tramos con máx y min crecientes
+    # Tendencia HH/HL: máximos y mínimos crecientes por tramos
     dias = tec["tendencia"]["meses"] * 21
     tramos = tec["tendencia"]["tramos"]
     ventana = c.iloc[-dias:]
@@ -278,6 +259,7 @@ def indicadores(sub, cfg):
         "rsi": round(rsi_hoy, 1) if rsi_hoy is not None else None, "rsi_dias": rsi_dias,
         "macd_dias": macd_dias,
         "vol_ratio": vol_ratio, "vol_hoy": int(vol_hoy), "vol_prom": int(vol_prom),
+        "vol_usd_prom": int(vol_usd_prom),
         "hh_hl": hh_hl,
         "pct_vwap": pct_vwap,
     }
@@ -285,7 +267,8 @@ def indicadores(sub, cfg):
 
 # --------------------------------------------------------------- orquestación
 def preparar_datos(cfg):
-    """Universo completo con indicadores. Devuelve lista de dicts listos para los agentes."""
+    """Universo completo con indicadores. Descarga todo el S&P 500, mide
+    liquidez y selecciona el top de cada sector. Devuelve lista de dicts."""
     acciones, etfs = armar_universo(cfg)
     todos = {**acciones, **etfs}
     if not todos:
@@ -313,14 +296,39 @@ def preparar_datos(cfg):
         ind["tipo"] = "etf" if t in etfs else "accion"
         resultados.append(ind)
 
-    print(f"Con indicadores completos: {len(resultados)}/{len(todos)}")
-    return resultados
+    con_datos = sum(1 for r in resultados if r["tipo"] == "accion")
+    print(f"Acciones con indicadores: {con_datos}/{len(acciones)} · ETFs: {len(etfs)}")
+
+    # Selección final: top de cada sector por liquidez media en dólares
+    precio_min = cfg["filtros"].get("precio_min_usd", 0)
+    vol_min = cfg["filtros"].get("volumen_dolares_min", 0)
+    por_sector = {}
+    finales = []
+    for r in resultados:
+        if r["tipo"] == "etf":
+            finales.append(r)
+        else:
+            por_sector.setdefault(r["sector"], []).append(r)
+
+    for sector, cant in cfg["sectores"].items():
+        filas = [f for f in por_sector.get(sector, [])
+                 if f["precio"] >= precio_min and f["vol_usd_prom"] >= vol_min]
+        filas.sort(key=lambda r: -r["vol_usd_prom"])
+        elegidos = filas[:cant]
+        finales.extend(elegidos)
+        nombres = " ".join(r["ticker"] for r in elegidos)
+        print(f"  {sector}: top {len(elegidos)} → {nombres}")
+
+    n_acc = sum(1 for f in finales if f["tipo"] == "accion")
+    print(f"Universo final: {len(finales)} activos ({n_acc} acciones + {len(etfs)} ETFs)")
+    return finales
 
 
 # --------------------------------------------------------------- prueba
 if __name__ == "__main__":
     cfg = cargar_config()
     filas = preparar_datos(cfg)
-    for f in filas[:10]:
+    for f in filas[:15]:
         print(f"{f['ticker']:6} {f['sector']:22} USD {f['precio']:>9} "
-              f"RSI {f['rsi']} vol {f['vol_ratio']}x VWAP2022 {f['pct_vwap']}%")
+              f"RSI {f['rsi']} vol {f['vol_ratio']}x liq {f['vol_usd_prom'] / 1e6:.0f}M "
+              f"VWAP2022 {f['pct_vwap']}%")
