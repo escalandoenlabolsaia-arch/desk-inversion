@@ -92,7 +92,7 @@ if __name__ == "__main__":
     filas = preparar_datos(cfg)
     res = evaluar(filas, cfg)
 
-    # --- diagnóstico: cuántos pasan el filtro y cómo se reparten las señales
+    # Diagnóstico: cuántos pasan el filtro y cómo se reparten las señales
     pasan = [f for f in filas if pasa_filtros_entrada(f, cfg)]
     print(f"\nFiltro de entrada (EMA200/EMA50/HH-HL): {len(pasan)}/{len(filas)} activos")
     dist = Counter(len(senales(f, cfg)) for f in pasan)
@@ -100,7 +100,7 @@ if __name__ == "__main__":
 
     print(f"\nSectores confirmados: {[s['sector'] for s in res['sectores']] or 'ninguno'}")
 
-       print(f"\n🟢 SETUPS ({len(res['setups'])}):")
+    print(f"\n🟢 SETUPS ({len(res['setups'])}):")
     for f in res["setups"]:
         print(f"  {f['ticker']:6} {f['sector']:22} USD {f['precio']:>9} "
               f"RSI {f['rsi']} (hace {f['rsi_dias']}d) · MACD (hace {f['macd_dias']}d) · "
