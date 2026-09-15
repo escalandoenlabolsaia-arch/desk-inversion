@@ -61,5 +61,33 @@
   },
   "notificaciones": {
     "servicio": "ntfy"
+  },
+  "fundamentos": {
+    "pe_max": 40,
+    "pb_max": 10,
+    "ps_max": 8,
+    "deuda_ebitda_max": 4.0,
+    "roe_min": 8,
+    "margen_op_min": 5,
+    "crecimiento_min": 0,
+    "aprobado_pct": 70,
+    "debil_pct": 40
+  },
+  "insiders": {
+    "dias": 15,
+    "max_formularios": 8
+  },
+  "sec_edgar": {
+    "email": "TU_EMAIL@ejemplo.com",
+    "dias_filings": 21,
+    "fondos": {
+      "Berkshire Hathaway": "0001067983",
+      "Pershing Square": "0001336528",
+      "Scion Asset Management": "0001531156",
+      "Third Point": "0001041379",
+      "Viking Global": "0001160323",
+      "Lone Pine Capital": "0001062337",
+      "Coatue Management": "0001555743"
+    }
   }
 }
