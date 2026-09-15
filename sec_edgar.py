@@ -4,7 +4,8 @@ sec_edgar.py — Pasarela SEC EDGAR para el screener.
 
 Cubre dos secciones del config.json:
   1. sec_edgar  -> 13F-HR de fondos institucionales (Berkshire, Pershing, Scion...)
-  2. insiders   -> Form 4 (compras/ventas de insiders) por empresa
+  2. insiders   -> Form 4 (compras/ventas de insiders) por empresa,
+                   tanto de los setups como de TODO el universo
 
 Uso desde el resto del sistema:
 
@@ -13,10 +14,12 @@ Uso desde el resto del sistema:
     edgar = SecEdgar.desde_config("config.json")
     resumen    = edgar.resumen_fondos(min_fondos=2)      # consenso de fondos
     candidatos = edgar.marcar_fondos(candidatos)         # añade n_fondos, lista_fondos...
-    candidatos = edgar.marcar_insiders(candidatos)       # añade actividad_insiders
+    candidatos = edgar.marcar_insiders(candidatos)       # añade actividad_insiders (setups)
+    hallazgos  = edgar.escanear_insiders_universo(tickers)  # compras en todo el universo
 
 Uso directo (test):
     python sec_edgar.py config.json
+    python sec_edgar.py config.json --universo AAPL MSFT XOM
 
 Dependencias: requests
 """
@@ -68,6 +71,8 @@ def _etiqueta(elem: ET.Element) -> str:
 class SecEdgar:
     def __init__(self, email: str, dias_filings: int = 21, fondos: dict | None = None,
                  insiders_dias: int = 15, insiders_max: int = 8,
+                 insiders_solo_compras: bool = True, insiders_monto_min: float = 100000,
+                 insiders_max_nombres: int = 6,
                  cache_dir: str = ".cache_edgar", pausa: float = 0.15):
         if not email:
             raise ValueError("sec_edgar.email es obligatorio (la SEC exige User-Agent con email).")
@@ -77,6 +82,9 @@ class SecEdgar:
         self.fondos = dict(fondos or {})
         self.insiders_dias = int(insiders_dias)
         self.insiders_max = int(insiders_max)
+        self.insiders_solo_compras = bool(insiders_solo_compras)
+        self.insiders_monto_min = float(insiders_monto_min)
+        self.insiders_max_nombres = int(insiders_max_nombres)
         self.pausa = pausa
 
         self.cache_dir = Path(cache_dir)
@@ -106,6 +114,9 @@ class SecEdgar:
             fondos=sec.get("fondos", {}),
             insiders_dias=ins.get("dias", 15),
             insiders_max=ins.get("max_formularios", 8),
+            insiders_solo_compras=ins.get("solo_compras", True),
+            insiders_monto_min=ins.get("monto_min_usd", 100000),
+            insiders_max_nombres=ins.get("max_nombres", 6),
         )
 
     # ------------------------------------------------------------------ #
@@ -393,7 +404,9 @@ class SecEdgar:
         }
 
     def actividad_insiders(self, ticker: str, cik: str | None = None) -> dict | None:
-        """Resumen de Form 4 de los últimos N días (máx `insiders_max` formularios)."""
+        """Resumen de Form 4 de los últimos N días (máx `insiders_max` formularios).
+        Cache diario en disco: pedir el mismo ticker dos veces en la misma corrida
+        (o entre setup y escaneo del universo) no repite descargas."""
         clave_cache = f"insider_{ticker.upper()}"
         cache = self._leer_cache(clave_cache, solo_hoy=True)
         if cache is not None:
@@ -407,6 +420,7 @@ class SecEdgar:
         filings = self._filings(cik10, {"4"}, desde)[: self.insiders_max]
 
         compras = ventas = 0
+        compras_usd = 0.0
         neto_usd = 0.0
         detalle = []
         for f in filings:
@@ -420,11 +434,13 @@ class SecEdgar:
                 importe = t["acciones"] * t["precio"]
                 if t["codigo"] in COD_COMPRA:
                     compras += 1
+                    compras_usd += importe
                     neto_usd += importe
                 elif t["codigo"] in COD_VENTA:
                     ventas += 1
                     neto_usd -= importe
                 detalle.append({**t, "propietario": form4["propietario"],
+                                "cargo": form4["cargo"],
                                 "filing_date": f["filing_date"]})
 
         total = compras + ventas
@@ -434,6 +450,7 @@ class SecEdgar:
             "formularios": len(filings),
             "compras": compras,
             "ventas": ventas,
+            "compras_usd": round(compras_usd, 2),
             "neto_usd": round(neto_usd, 2),
             "ratio_compras": round(compras / total, 2) if total else None,
             "ultimo_filing": filings[0]["filing_date"] if filings else None,
@@ -442,25 +459,73 @@ class SecEdgar:
         self._guardar_cache(clave_cache, resumen)
         return resumen
 
+    def escanear_insiders_universo(self, tickers: list[str],
+                                   solo_compras: bool | None = None,
+                                   monto_min_usd: float | None = None,
+                                   max_nombres: int | None = None) -> list[dict]:
+        """Escanea Form 4 de TODA la lista de tickers (universo completo, no solo
+        setups) y devuelve los que tienen actividad neta relevante, ordenados por
+        fuerza de neto. Criterio: |neto_usd| >= monto_min_usd; con solo_compras=True
+        (default del config) además se exige neto positivo (hay más compras que ventas).
+        Cada hallazgo trae 'direccion': 'compra' o 'venta' para que main.py redacte.
+        Reutiliza el cache diario de actividad_insiders."""
+        solo_compras = self.insiders_solo_compras if solo_compras is None else solo_compras
+        monto_min = self.insiders_monto_min if monto_min_usd is None else monto_min_usd
+        max_nombres = self.insiders_max_nombres if max_nombres is None else max_nombres
+
+        self._cargar_mapa_tickers()
+        lista = sorted(set(t.upper() for t in tickers))
+        hallazgos: list[dict] = []
+        sin_cik = sin_datos = 0
+
+        for i, t in enumerate(lista, start=1):
+            if i % 40 == 0 or i == len(lista):
+                print(f"[insiders-universo] progreso {i}/{len(lista)} · hallazgos {len(hallazgos)}")
+            cik = self._cik_por_ticker.get(t)
+            if not cik:
+                sin_cik += 1
+                continue
+            try:
+                ins = self.actividad_insiders(t, cik)
+            except Exception as e:
+                print(f"[insiders-universo] AVISO {t}: {e}")
+                sin_datos += 1
+                continue
+            if not ins:
+                sin_datos += 1
+                continue
+            neto = ins["neto_usd"]
+            if abs(neto) < monto_min:
+                continue
+            if solo_compras and neto <= 0:
+                continue
+            ins["direccion"] = "compra" if neto > 0 else "venta"
+            hallazgos.append(ins)
+
+        hallazgos.sort(key=lambda h: -abs(h["neto_usd"]))
+        print(f"[insiders-universo] {len(hallazgos)} tickers con |neto| >= ${monto_min:,.0f} "
+              f"(escaneados {len(lista) - sin_cik}/{len(lista)}, sin CIK {sin_cik}, "
+              f"sin datos {sin_datos})")
+        return hallazgos[:max_nombres]
+
     def marcar_insiders(self, candidatos: list[dict]) -> list[dict]:
         """Añade a cada candidato el campo 'insiders' con el resumen Form 4."""
         for c in candidatos:
             c["insiders"] = self.actividad_insiders(c.get("ticker", ""), c.get("cik"))
         return candidatos
 
-    # ------------------------------------------------------------------ #
-    # CLI de prueba
-    # ------------------------------------------------------------------ #
-    if __name__ != "__main__":
-        pass
 
-
+# --------------------------------------------------------------------------- #
+# CLI de prueba
+# --------------------------------------------------------------------------- #
 if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="Test de sec_edgar.py")
     parser.add_argument("config", nargs="?", default="config.json")
     parser.add_argument("--min-fondos", type=int, default=1)
+    parser.add_argument("--universo", nargs="*", metavar="TICKER",
+                        help="escanear insiders de estos tickers de ejemplo")
     args = parser.parse_args()
 
     edgar = SecEdgar.desde_config(args.config)
@@ -480,3 +545,9 @@ if __name__ == "__main__":
     if ins:
         print(f"compras={ins['compras']} ventas={ins['ventas']} "
               f"neto=${ins['neto_usd']/1e6:.2f}M ratio={ins['ratio_compras']}")
+
+    if args.universo:
+        print(f"\n=== ESCANEO UNIVERSO (muestra: {', '.join(args.universo)}) ===")
+        for h in edgar.escanear_insiders_universo(args.universo):
+            print(f"{h['ticker']:<6} {h['direccion']} neto=${h['neto_usd']/1e6:.2f}M "
+                  f"(compras={h['compras']} ventas={h['ventas']})")
