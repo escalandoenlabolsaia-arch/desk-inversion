@@ -24,7 +24,7 @@ jobs:
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-        run: python3 datos.py    # TEMPORAL: prueba de datos. Al final lo cambiamos a main.py
+                run: python3 agentes.py
 
       - name: Guardar historial
         run: |
