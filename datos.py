@@ -281,12 +281,20 @@ def indicadores(sub, cfg):
     cruce = (dif.shift(1) < 0) & (dif >= 0)
     macd_dias = _dias_desde(cruce, tec["macd"]["ventana_dias"])
 
-    # Volumen: hoy vs promedio, y liquidez media en dólares (elige el top por sector)
-    n = cfg["volumen_inusual"]["dias_promedio"]
+    # Volumen: ratio de cada día vs promedio de los 20 días previos.
+    # vol_ratio = el de HOY (reporte + confirmación sectorial, evento del día).
+    # vol_dias  = días desde el último día con volumen >= umbral de vigilancia
+    #             dentro de la ventana (señal "hubo volumen en los últimos N días").
+    vi = cfg["volumen_inusual"]
+    n = vi["dias_promedio"]
+    ventana_vol = int(vi.get("ventana_dias", 5))
     vol_hoy = float(v.iloc[-1])
     vol_prom = float(v.iloc[-(n + 1):-1].mean())
     vol_ratio = round(vol_hoy / vol_prom, 2) if vol_prom > 0 else 0.0
     vol_usd_prom = float((c * v).iloc[-(n + 1):-1].mean())
+    prom_rodante = v.rolling(n).mean().shift(1)          # promedio previo, excluye el día propio
+    ratio_dia = v / prom_rodante.where(prom_rodante > 0)  # NaN si promedio 0 -> señal False
+    vol_dias = _dias_desde(ratio_dia >= vi["vigilancia"], ventana_vol)
 
     # Tendencia HH/HL: máximos y mínimos crecientes por tramos
     dias = tec["tendencia"]["meses"] * 21
@@ -312,7 +320,8 @@ def indicadores(sub, cfg):
         "ema50": round(ema50, 2), "dist_ema50": round(precio / ema50 - 1, 4),
         "rsi": round(rsi_hoy, 1) if rsi_hoy is not None else None, "rsi_dias": rsi_dias,
         "macd_dias": macd_dias,
-        "vol_ratio": vol_ratio, "vol_hoy": int(vol_hoy), "vol_prom": int(vol_prom),
+        "vol_ratio": vol_ratio, "vol_dias": vol_dias,
+        "vol_hoy": int(vol_hoy), "vol_prom": int(vol_prom),
         "vol_usd_prom": int(vol_usd_prom),
         "hh_hl": hh_hl,
         "pct_vwap": pct_vwap,
@@ -384,5 +393,5 @@ if __name__ == "__main__":
     filas = preparar_datos(cfg)
     for f in filas[:15]:
         print(f"{f['ticker']:6} {f['sector']:22} USD {f['precio']:>9} "
-              f"RSI {f['rsi']} vol {f['vol_ratio']}x liq {f['vol_usd_prom'] / 1e6:.0f}M "
-              f"VWAP2022 {f['pct_vwap']}%")
+              f"RSI {f['rsi']} vol {f['vol_ratio']}x (vol hace {f['vol_dias']}d) "
+              f"liq {f['vol_usd_prom'] / 1e6:.0f}M VWAP2022 {f['pct_vwap']}%")
