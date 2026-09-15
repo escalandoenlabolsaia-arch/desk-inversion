@@ -1,3 +1,7 @@
+> ⚠️ VERSIÓN VIEJA (histórico del proyecto) — NO es el estado actual.
+> El README vigente es leeme3.md. Si estás en un chat nuevo y vas a usar
+> este archivo como memoria, frená: usá leeme3.md. Este se conserva solo
+> como registro de cómo evolucionó el sistema.
 Exacto, esa es la idea. Y te aclaro el matiz importante: **en un chat nuevo yo no tengo memoria de esta conversación**. Entonces el flujo futuro sería: abre chat nuevo → me pegás el README (o me decís "leé el README del repo") → pegás el log del error → y tengo todo el contexto para arreglarlo sin volver a empezar de cero. El README es la memoria del sistema, tuya y mía.
 
 Acá va completo. Repo → **Add file** → **Create new file** → nombre: `README.md` → pegá todo esto → **Commit changes**:
