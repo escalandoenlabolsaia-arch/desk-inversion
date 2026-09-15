@@ -54,9 +54,9 @@
     "vigilancia": 2
   },
   "resumen_semanal_dia": "sunday",
-  "ia": {
+    "ia": {
     "proveedor": "groq",
-    "modelo": "llama-3.3-70b-versatile",
+    "modelo": "openai/gpt-oss-120b",
     "fallback": "plantilla"
   },
   "notificaciones": {
