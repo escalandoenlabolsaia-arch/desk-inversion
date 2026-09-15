@@ -5,7 +5,10 @@ main.py - Orquestador del desk: evalua, redacta y notifica.
 - Vigilancias (2 senales) -> solo en el resumen semanal.
 - Respaldo institucional (13F): si 2 o mas fondos tienen la accion,
   una vigilancia se promueve a setup.
-- Insiders (Form 4): se consultan solo para los setups finales.
+- Insiders (Form 4): setups finales + escaneo de TODO el universo.
+  Con insiders.solo_setups=false (default), cada corrida emite un bloque
+  diario con las compras netas relevantes de cualquier accion del universo,
+  haya pasado o no el filtro tecnico. Dedup propio de N dias (insiders.dedup_dias).
 - Analisis con Groq (gratis) y respaldo de plantilla local.
 - Si la corrida falla, avisa por ntfy (watchdog).
 """
@@ -68,6 +71,9 @@ def crear_edgar(cfg):
         fondos=sec.get("fondos", {}),
         insiders_dias=ins.get("dias", 15),
         insiders_max=ins.get("max_formularios", 8),
+        insiders_solo_compras=ins.get("solo_compras", True),
+        insiders_monto_min=ins.get("monto_min_usd", 100000),
+        insiders_max_nombres=ins.get("max_nombres", 6),
     )
 
 
@@ -87,7 +93,7 @@ def promover_con_fondos(res, min_fondos=2):
 
 
 def enriquecer_insiders(setups, edgar):
-    """Form 4 solo para los setups finales (evita decenas de peticiones)."""
+    """Form 4 para los setups finales (el cache diario evita descargas repetidas)."""
     for f in setups:
         try:
             f["insiders"] = edgar.actividad_insiders(f["ticker"], f.get("cik"))
@@ -108,6 +114,29 @@ def texto_insiders(ins):
     return None
 
 
+def texto_insiders_universo(hallazgos, dias):
+    """Bloque diario: insiders con compras netas relevantes en TODO el universo,
+    independiente de que el ticker pase o no los filtros tecnicos."""
+    if not hallazgos:
+        return None
+    l = [f"INSIDERS COMPRANDO (ultimos {dias} dias)"]
+    for h in hallazgos:
+        linea = (f"- {h['ticker']}: {h['compras']} compras / {h['ventas']} ventas, "
+                 f"neto USD {h['neto_usd'] / 1e6:+.1f}M")
+        compras = [d for d in h.get("detalle", []) if d.get("codigo") == "P"]
+        if compras:
+            mayor = max(compras, key=lambda d: d.get("acciones", 0) * d.get("precio", 0))
+            importe = mayor.get("acciones", 0) * mayor.get("precio", 0) / 1e6
+            nombre = str(mayor.get("propietario") or "?").title()
+            cargo = mayor.get("cargo")
+            linea += f" - mayor: {nombre}"
+            if cargo:
+                linea += f" ({cargo})"
+            linea += f" USD {importe:.1f}M"
+        l.append(linea)
+    return "\n".join(l)
+
+
 # --------------------------------------------------------------- analisis IA
 def plantilla_analisis(f):
     """Respaldo local: redacta con reglas si Groq no esta disponible."""
@@ -116,7 +145,14 @@ def plantilla_analisis(f):
         partes.append(f"RSI {f['rsi']:.0f} con suelo hace {f['rsi_dias']} dia(s)")
     if f["macd_dias"] is not None:
         partes.append(f"MACD cruzo al alza hace {f['macd_dias']} dia(s)")
-    partes.append(f"volumen {f['vol_ratio']}x su promedio de 20 dias")
+    vd = f.get("vol_dias")
+    if vd == 0:
+        partes.append(f"volumen {f['vol_ratio']}x su promedio de 20 dias (disparo hoy)")
+    elif vd is not None:
+        partes.append(f"confirmacion de volumen en ventana (disparo hace {vd} dia(s), "
+                      f"hoy {f['vol_ratio']}x)")
+    else:
+        partes.append(f"volumen {f['vol_ratio']}x su promedio de 20 dias")
     if f.get("n_fondos"):
         partes.append(f"{f['n_fondos']} fondos institucionales posicionados")
     if f["dist_ema200"] is not None and f["dist_ema200"] < 0:
@@ -133,12 +169,16 @@ def analisis_groq(f):
     datos = (
         f"{f['ticker']} ({f['sector']}) - precio USD {f['precio']}, "
         f"{f['dist_ema200'] * 100:+.1f}% vs EMA200, {f['dist_ema50'] * 100:+.1f}% vs EMA50, "
-        f"RSI {f['rsi']} (suelo bajo 30 hace {f['rsi_dias']} dias), "
+        f"RSI {f['rsi']} (minimo reciente hace {f['rsi_dias']} dias), "
         f"cruce alcista del MACD hace {f['macd_dias']} dias, "
-        f"volumen {f['vol_ratio']}x el promedio de 20 dias, "
-        f"tendencia de maximos y minimos crecientes 6 meses: {'si' if f['hh_hl'] else 'no'}, "
-        f"{f['pct_vwap']:+.1f}% sobre el VWAP anclado al minimo de 2022."
+        f"volumen {f['vol_ratio']}x el promedio de 20 dias"
     )
+    vd = f.get("vol_dias")
+    if vd is not None and vd > 0:
+        datos += f" (el disparo de volumen fue hace {vd} dias)"
+    datos += (f", tendencia de maximos y minimos crecientes 6 meses: "
+              f"{'si' if f['hh_hl'] else 'no'}, "
+              f"{f['pct_vwap']:+.1f}% sobre el VWAP anclado al minimo de 2022.")
     if f.get("n_fondos"):
         fondos = ", ".join(f["fondos_institucionales"])
         datos += (f" Posicion institucional: {f['n_fondos']} fondos "
@@ -184,8 +224,12 @@ def texto_setup(f, analisis):
     if f["macd_dias"] is not None:
         macd_txt += f" hace {f['macd_dias']}d"
     l.append(f"{rsi_txt} - {macd_txt}")
-    l.append(f"Volumen: {f['vol_ratio']}x promedio "
-             f"({f['vol_hoy'] / 1e6:.1f}M vs {f['vol_prom'] / 1e6:.1f}M)")
+    vol_linea = (f"Volumen: {f['vol_ratio']}x promedio "
+                 f"({f['vol_hoy'] / 1e6:.1f}M vs {f['vol_prom'] / 1e6:.1f}M)")
+    vd = f.get("vol_dias")
+    if vd is not None and vd > 0:
+        vol_linea += f" - disparo hace {vd}d"
+    l.append(vol_linea)
     vwap = f"{f['pct_vwap']:+.1f}%" if f["pct_vwap"] is not None else "n/d"
     hh = "si" if f["hh_hl"] else "no"
     l.append(f"Tendencia HH/HL 6m: {hh} - (VWAP-2022 {vwap})")
@@ -301,7 +345,12 @@ def main():
     if not topic:
         raise RuntimeError("Falta el secret NTFY_TOPIC")
 
-    # --- Capa SEC EDGAR: fondos institucionales + insiders ---
+    ins_cfg = cfg.get("insiders") or {}
+    solo_setups = ins_cfg.get("solo_setups", False)
+    dedup_ins_dias = int(ins_cfg.get("dedup_dias", 15))
+    ventana_ins_dias = int(ins_cfg.get("dias", 15))
+
+    # --- Capa SEC EDGAR: fondos institucionales + insiders de setups ---
     edgar = crear_edgar(cfg)
     if edgar:
         try:
@@ -312,10 +361,20 @@ def main():
         except Exception as e:
             print(f"  AVISO: EDGAR fallo, se sigue sin datos institucionales: {e}")
             edgar = None
-    # ---
+
+    # --- Escaneo de insiders de TODO el universo (bloque diario) ---
+    # try/except propio: si falla solo este paso, el resto de la corrida sigue.
+    insiders_universo = []
+    if edgar and not solo_setups:
+        try:
+            tickers_acciones = [f["ticker"] for f in filas if f.get("tipo") == "accion"]
+            insiders_universo = edgar.escanear_insiders_universo(tickers_acciones)
+        except Exception as e:
+            print(f"  AVISO: escaneo de insiders fallo, se sigue sin bloque diario: {e}")
 
     crear_csv_si_falta(ENVIADOS, ["clave", "fecha"])
     recientes = enviados_recientes(ENVIADOS, dias=7)
+    recientes_ins = enviados_recientes(ENVIADOS, dias=dedup_ins_dias)
 
     mensajes = []
 
@@ -336,6 +395,18 @@ def main():
             continue
         mensajes.append(texto_sector(s))
         agregar_fila(ENVIADOS, [clave, hoy.isoformat()])
+
+    # Bloque diario de insiders del universo (dedup propio de N dias)
+    if insiders_universo:
+        nuevos = [h for h in insiders_universo
+                  if f"insider-{h['ticker']}" not in recientes_ins]
+        for h in nuevos:
+            agregar_fila(ENVIADOS, [f"insider-{h['ticker']}", hoy.isoformat()])
+        if nuevos:
+            mensajes.append(texto_insiders_universo(nuevos, ventana_ins_dias))
+        else:
+            print(f"  Insiders universo: {len(insiders_universo)} hallazgos, "
+                  f"todos ya avisados en los ultimos {dedup_ins_dias} dias")
 
     # Resumen semanal (el dia configurado, se manda siempre)
     dia_resumen = DIAS_SEMANA.get(cfg.get("resumen_semanal_dia", "sunday"), 6)
