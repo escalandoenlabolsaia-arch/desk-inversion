@@ -9,7 +9,8 @@ main.py - Orquestador del desk: evalua, redacta y notifica.
   Con insiders.solo_setups=false (default), cada corrida emite un bloque
   diario con las compras netas relevantes de cualquier accion del universo,
   haya pasado o no el filtro tecnico. Dedup propio de N dias (insiders.dedup_dias).
-- Analisis con Groq (gratis) y respaldo de plantilla local.
+- Analisis IA via Groq, con el modelo leido del config (ia.modelo).
+  Si no hay key, no hay modelo configurado o la API falla -> plantilla local.
 - Si la corrida falla, avisa por ntfy (watchdog).
 """
 
@@ -162,9 +163,26 @@ def plantilla_analisis(f):
     return " - ".join(partes) + ". " + riesgo
 
 
-def analisis_groq(f):
+def _recortar_a_dos_lineas(texto):
+    """El prompt pide maximo 2 lineas; si el modelo se pasa, se recorta local."""
+    lineas = [l.strip() for l in (texto or "").strip().splitlines() if l.strip()]
+    return "\n".join(lineas[:2])
+
+
+def analisis_groq(f, cfg):
+    """Pide el analisis a Groq con el modelo declarado en config (ia.modelo).
+    Devuelve None (y cae en plantilla local) si falta la key, falta el modelo
+    o la API falla. NOTAS:
+    - Los modelos de Groq cambian de disponibilidad: si aparece
+      'Groq fallo (404...)', el modelo de config ya no esta disponible para
+      el plan de la cuenta (ej: paso a Enterprise). Ver modelos vigentes en
+      console.groq.com/docs/models y cambiar SOLO config.json.
+    - Los modelos gpt-oss razonan antes de responder: se pide reasoning_effort
+      'low' y tope alto de tokens para que quede presupuesto para la respuesta.
+    """
     key = os.environ.get("GROQ_API_KEY")
-    if not key:
+    modelo = (cfg.get("ia") or {}).get("modelo")
+    if not key or not modelo:
         return None
     datos = (
         f"{f['ticker']} ({f['sector']}) - precio USD {f['precio']}, "
@@ -192,7 +210,7 @@ def analisis_groq(f):
             "https://api.groq.com/openai/v1/chat/completions",
             headers={"Authorization": f"Bearer {key}"},
             json={
-                "model": "llama-3.3-70b-versatile",
+                "model": modelo,
                 "messages": [
                     {"role": "system",
                      "content": "Sos un analista tecnico bursatil esceptico. "
@@ -200,13 +218,17 @@ def analisis_groq(f):
                                 "y senala SIEMPRE un riesgo concreto. Sin saludos ni relleno."},
                     {"role": "user", "content": datos},
                 ],
-                "max_tokens": 150,
+                "reasoning_effort": "low",
+                "max_tokens": 500,
                 "temperature": 0.4,
             },
             timeout=30,
         )
         r.raise_for_status()
-        return r.json()["choices"][0]["message"]["content"].strip()
+        contenido = r.json()["choices"][0]["message"]["content"].strip()
+        if not contenido:
+            return None
+        return _recortar_a_dos_lineas(contenido)
     except Exception as e:
         print(f"  Groq fallo ({e}) - uso plantilla local")
         return None
@@ -384,7 +406,7 @@ def main():
         if clave in recientes:
             print(f"  {f['ticker']}: ya avisado esta semana, se omite")
             continue
-        analisis = analisis_groq(f) or plantilla_analisis(f)
+        analisis = analisis_groq(f, cfg) or plantilla_analisis(f)
         mensajes.append(texto_setup(f, analisis))
         agregar_fila(ENVIADOS, [clave, hoy.isoformat()])
 
