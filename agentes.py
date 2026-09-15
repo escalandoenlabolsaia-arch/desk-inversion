@@ -100,7 +100,7 @@ if __name__ == "__main__":
 
     print(f"\nSectores confirmados: {[s['sector'] for s in res['sectores']] or 'ninguno'}")
 
-    print(f"\n🟢 SETUPS ({len(res['setups']}):")
+       print(f"\n🟢 SETUPS ({len(res['setups'])}):")
     for f in res["setups"]:
         print(f"  {f['ticker']:6} {f['sector']:22} USD {f['precio']:>9} "
               f"RSI {f['rsi']} (hace {f['rsi_dias']}d) · MACD (hace {f['macd_dias']}d) · "
