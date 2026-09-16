@@ -11,10 +11,14 @@ main.py - Orquestador del desk: evalua, redacta y notifica.
   haya pasado o no el filtro tecnico. Dedup propio de N dias (insiders.dedup_dias).
 - Analisis IA via Groq, con el modelo leido del config (ia.modelo).
   Si no hay key, no hay modelo configurado o la API falla -> plantilla local.
+- Al final de cada corrida publica salidas/estado.json (contrato v1):
+  el archivo publico que consume el repo hijo. Si falla la publicacion,
+  la corrida sigue igual (es un extra, nunca un riesgo).
 - Si la corrida falla, avisa por ntfy (watchdog).
 """
 
 import csv
+import json
 import os
 import time
 from datetime import date, datetime, timedelta
@@ -356,6 +360,83 @@ def enviar_ntfy(topic, texto, titulo="Desk de inversion"):
         time.sleep(2)
 
 
+# --------------------------------------------------------------- publicacion de estado
+def _mayor_compra_direccion(h):
+    """'ticker: mayor comprador y su cargo' para el campo direccion del estado."""
+    compras = [d for d in h.get("detalle", []) if d.get("codigo") == "P"]
+    if not compras:
+        return None
+    mayor = max(compras, key=lambda d: d.get("acciones", 0) * d.get("precio", 0))
+    nombre = str(mayor.get("propietario") or "?").title()
+    cargo = mayor.get("cargo")
+    return f"{nombre} ({cargo})" if cargo else nombre
+
+
+def publicar_estado(cfg, filas, res, insiders_universo):
+    """Escribe salidas/estado.json: contrato v1, archivo publico que consume
+    el hijo. Nunca lanza excepciones: si falla, la corrida de la madre sigue
+    (el hijo usa el ultimo estado valido y avisa)."""
+    try:
+        pasan = [f for f in filas if pasa_filtros_entrada(f, cfg)]
+
+        def _setup_v1(f):
+            ins = f.get("insiders") or {}
+            return {
+                "ticker": f["ticker"],
+                "sector": f.get("sector"),
+                "precio": f.get("precio"),
+                "rsi": f.get("rsi"),
+                "rsi_dias": f.get("rsi_dias"),
+                "macd_dias": f.get("macd_dias"),
+                "vol_ratio": f.get("vol_ratio"),
+                "vol_dias": f.get("vol_dias"),
+                "n_fondos": f.get("n_fondos", 0),
+                "insiders_neto_usd": ins.get("neto_usd"),
+            }
+
+        def _vigilancia_v1(f):
+            return {
+                "ticker": f["ticker"],
+                "sector": f.get("sector"),
+                "precio": f.get("precio"),
+                "rsi": f.get("rsi"),
+                "rsi_dias": f.get("rsi_dias"),
+                "macd_dias": f.get("macd_dias"),
+                "n_fondos": f.get("n_fondos", 0),
+            }
+
+        estado = {
+            "version": 1,
+            "fecha": date.today().isoformat(),
+            "corrida_ok": True,
+            "embudo": (f"entrada {len(pasan)}/{len(filas)} | "
+                       f"setups {len(res['setups'])} | "
+                       f"vigilancia {len(res['vigilancia'])} | "
+                       f"sectores {len(res['sectores'])}"),
+            "setups": [_setup_v1(f) for f in res["setups"]],
+            "vigilancia": [_vigilancia_v1(f) for f in res["vigilancia"]],
+            "insiders_universo": [
+                {
+                    "ticker": h["ticker"],
+                    "neto_usd": h.get("neto_usd"),
+                    "direccion": _mayor_compra_direccion(h),
+                    "compras": h.get("compras", 0),
+                    "ventas": h.get("ventas", 0),
+                }
+                for h in insiders_universo
+            ],
+        }
+        os.makedirs("salidas", exist_ok=True)
+        ruta = os.path.join("salidas", "estado.json")
+        with open(ruta, "w", encoding="utf-8") as f:
+            json.dump(estado, f, ensure_ascii=False, indent=2)
+        print(f"estado.json publicado: {len(estado['setups'])} setups, "
+              f"{len(estado['vigilancia'])} vigilancias, "
+              f"{len(estado['insiders_universo'])} insiders universo")
+    except Exception as e:
+        print(f"  AVISO: no se pudo publicar estado.json (la corrida sigue): {e}")
+
+
 # --------------------------------------------------------------- orquestacion
 def main():
     cfg = cargar_config()
@@ -441,6 +522,9 @@ def main():
     else:
         print(f"Sin setups ni sectores nuevos. "
               f"Silencio (vigilancias: {len(res['vigilancia'])}).")
+
+    # --- Publicacion del estado para el hijo (ultima accion de la corrida) ---
+    publicar_estado(cfg, filas, res, insiders_universo)
 
 
 # --------------------------------------------------------------- arranque
