@@ -1,14 +1,17 @@
-Buena pregunta, y tiene una respuesta simple: **el README es la memoria del sistema**. Vos mismo lo definiste así cuando lo creamos: como yo no recuerdo nada entre chats, el flujo es *abrir chat nuevo → pegar el README → pegar el log → y el Claude tiene todo el contexto*. El README no lo ejecuta nadie; es el manual que **vos** me vas a pegar en el futuro.
+Recibido — devuelto **completo y listo para reemplazar**. Primero, la lista exacta de lo que cambié (para que verifiques que no hay nada sorpresa), después el archivo.
 
-**El problema concreto de hoy:** el que tenés commiteado describe el sistema de ANTES de esta sesión. Si mañana algo falla y lo pegás en un chat nuevo, el Claude va a "recordar" mal:
+## Las 2 adiciones acordadas (toque 3/3)
 
-- Va a creer que el umbral RSI es 30 (es 35) y que las ventanas son 10/5 (son 20/10)
-- No va a saber que existe el bloque de insiders del universo ni la línea `EMBUDO:` — si te llega un log con `EMBUDO: entrada 60/155...`, no va a saber qué es
-- Va a decirte que los parámetros técnicos se cambian en `agentes.py`, cuando en realidad los umbrales se aplican en `datos.py` — y te va a hacer buscar el problema en el archivo equivocado
+1. **Sub-sección nueva** `salidas/estado.json (contrato v1)` — después de la tabla de Archivos: qué es, quién lo consume, cuándo se escribe, qué significa si falta, y la regla de versionado.
+2. **Log sano**: agregué la línea `TICKER: ya avisado esta semana, se omite` (la dedup verificada con UNH) y, de paso, las dos líneas nuevas reales del cierre (`estado.json publicado: ...` y su aviso no crítico en el diagnóstico).
 
-O sea: README desactualizado = el Claude de abajo te va a "corregir" cosas que están bien y pisar la recalibración que acabamos de hacer.
+## Puesta al día de consistencia (3 cosas del manual que ya mentían)
 
-Reemplazá todo el `README.md` por esto:
+3. El ejemplo de alerta decía **"Groq llama-3.3-70b"** — el modelo jubilado. Ahora dice "modelo de `ia.modelo` (hoy openai/gpt-oss-120b)". (Justo el tipo de trampa que haría "recordar mal" a un chat futuro.)
+4. Decía "cada commit con `on: push` dispara una corrida" — **falso** en el yml actual (cron + botón manual). Corregido.
+5. La tabla de Archivos (fila `main.py` y `desk.yml`) y el Flujo (paso 7 ESTADO) ahora mencionan la habilidad nueva.
+
+Todo lo demás está **carácter por carácter igual**. Reemplazá TODO el `README.md` con esto:
 
 ````markdown
 # Desk de Inversión 📊
@@ -39,6 +42,9 @@ GitHub Actions. Silencio = todo bien.
 5. NOTIFICACIÓN  ntfy: setups, sectores, bloque diario de insiders,
                  resumen semanal. Deduplicación (7 días general, 15 días insiders).
 6. WATCHDOG      Si la corrida falla, aviso ⚠️ por ntfy con el error.
+7. ESTADO        Publica salidas/estado.json (contrato v1) al final de cada
+                 corrida: el archivo público que consume el repo hijo.
+                 try/except propio: si falla, la corrida sigue igual.
 ```
 
 ## Archivos
@@ -49,12 +55,27 @@ GitHub Actions. Silencio = todo bien.
 | `datos.py` | Arma el universo y calcula indicadores. **Acá se aplican los umbrales** (RSI<35, cruce MACD, ratios de volumen): convierte series en `rsi_dias`, `macd_dias`, `vol_dias`, `vol_ratio`. Solo números, no decide. |
 | `agentes.py` | Decide con esos datos: filtro de entrada, señales (solo pregunta "¿hubo o no?"), embudo, veredictos. |
 | `sec_edgar.py` | Capa SEC: 13F de fondos + Form 4 de insiders (setups y universo). Con CLI de prueba propia. |
-| `main.py` | Orquestador: redacta mensajes, Groq, ntfy, deduplicación, resumen. **Debe terminar en `raise`** (ver diagnóstico). |
+| `main.py` | Orquestador: redacta mensajes, Groq, ntfy, deduplicación, resumen, **publica estado.json**. **Debe terminar en `raise`** (ver diagnóstico). |
 | `requirements.txt` | Librerías (yfinance, pandas, lxml, requests). |
-| `.github/workflows/desk.yml` | El que corre todo: cron + secrets + commit del historial. |
+| `.github/workflows/desk.yml` | El que corre todo: cron + secrets + commit del historial y del estado. |
 | `.gitignore` | Excluye `.cache_edgar/` y `__pycache__/` del historial. |
 | `enviados.csv` | Historial de avisos (se commitea solo para deduplicar). |
+| `salidas/estado.json` | **Contrato v1 madre → hijo** (ver sub-sección abajo). Se commitea en cada corrida. |
 | `.cache_edgar/` | Cache diario de EDGAR (submissions, Form 4, CUSIPs). Se recrea en cada corrida; **ignorada por git**. |
+
+### salidas/estado.json (contrato v1 madre → hijo)
+
+- **Qué es:** la foto JSON del resultado de cada corrida: `version` (1), `fecha`,
+  `corrida_ok`, `embudo`, `setups`, `vigilancia`, `insiders_universo`. Solo datos
+  públicos de mercado — **jamás contiene datos de cartera**.
+- **Quién lo consume:** el repo hijo (`desk-analista`), que lo descarga por URL
+  pública (`raw.githubusercontent.com/<usuario>/desk-inversion/main/salidas/estado.json`).
+- **Cuándo se escribe:** al final de CADA corrida (última acción de `main.py`),
+  con try/except propio: si falla, la corrida sigue igual.
+- **Si la carpeta `salidas/` NO aparece en el repo:** esa corrida no publicó (o no
+  se pudo commitear). La corrida puede haber estado verde igual: revisar el log.
+- **Regla del contrato:** si el formato cambia algún día, se sube `version` a 2
+  manteniendo compatibilidad (un hijo viejo sigue leyendo v1 sin romperse).
 
 ## La estrategia (reglas exactas, recalibradas)
 
@@ -103,7 +124,8 @@ Tendencia HH/HL 6m: ✓ · (VWAP-2022 +18%)
 Fondos institucionales: Berkshire Hathaway, Third Point ($140M)
 Insiders: 2 compras vs 0 ventas (neto +$4.1M)
 [Ver en TradingView](link)
-🤖 Análisis: (Groq llama-3.3-70b, tono escéptico, o plantilla local si falla)
+🤖 Análisis: (Groq, modelo de ia.modelo — hoy openai/gpt-oss-120b —
+tono escéptico, o plantilla local si falla)
 ```
 
 ## Parámetros (config.json)
@@ -137,7 +159,7 @@ Insiders: 2 compras vs 0 ventas (neto +$4.1M)
 | `ia.modelo` | openai/gpt-oss-120b | Modelo Groq del análisis IA. Si da 404, el modelo dejó de estar disponible para el plan: elegir otro en console.groq.com/docs/models y cambiar SOLO esta línea |
 | `sec_edgar.dias_filings` | 21 | Ventana de búsqueda (el 13F usado es siempre el último disponible) |
 | `sec_edgar.fondos` | 7 fondos con CIK | Berkshire, Pershing, Scion, Third Point, Viking, Lone Pine, Coatue |
-| `fundamentos` | pe_max 40, pb_max 10, etc. | **NO conectado al flujo actual** (sección definida pero sin uso en datos/agentes/main). No editar: no tiene efecto. |
+| `fundamentos` | pe_max 40, pb_max 10, etc. | **NO conectado al flujo actual** (sección definida pero sin uso en datos/agentes/main). No editar: no tiene efecto. Será el modelo del scoring del hijo. |
 
 **Calibración con el EMBUDO** (línea que imprime cada corrida):
 `EMBUDO: entrada X/155 | rsi Y | rsi+macd Z | +volumen V | setups S | vigilancia W`
@@ -153,8 +175,8 @@ Insiders: 2 compras vs 0 ventas (neto +$4.1M)
 - Cron: `0 23 * * 0-5` = domingo a viernes, 23:00 UTC (**20:00 hs Argentina**),
   después del cierre de Wall Street. Resumen semanal el día configurado.
 - Duración sana: **5-10 minutos** (descarga ~525 tickers + 13F + escaneo Form 4
-  del universo). Cada commit con `on: push` dispara una corrida: durante
-  actualizaciones de archivos, ignorar avisos ⚠️ intermedios.
+  del universo). El workflow corre por cron + botón manual (`workflow_dispatch`);
+  los commits del bot NO disparan corridas nuevas.
 - Costo: ~USD 1-3/mes del pozo gratis de USD 16 (Settings → Billing → Usage;
   "Amount due" debe ser $0.00).
 - Secrets: `NTFY_TOPIC` y `GROQ_API_KEY`.
@@ -167,14 +189,18 @@ Insiders: 2 compras vs 0 ventas (neto +$4.1M)
    - `Universo final: 177 activos (155 acciones + 22 ETFs)`
    - `EMBUDO: entrada X/155 | ...` (siempre)
    - `[insiders-universo] progreso 40/155...` y `N tickers con |neto| >= $100,000`
+   - `TICKER: ya avisado esta semana, se omite` (dedup semanal funcionando — NO es error)
    - `Silencio...` o `Enviado: X bloque(s)`
+   - `estado.json publicado: X setups, Y vigilancias, Z insiders universo` (cierre nuevo)
 3. **REGLA DE ORO — corrida verde pero de ~1 segundo sin imprimir nada:**
    el archivo quedó **cortado al copiarlo**. `main.py` debe terminar con
    `if __name__ == "__main__":` y última línea `raise`. Siempre reemplazar
    archivos COMPLETOS, nunca a medias.
 4. `AVISO: EDGAR fallo...` → siguió sin capa institucional. No crítico.
 5. `AVISO: escaneo de insiders fallo...` → siguió sin bloque 🐋. No crítico.
-6. Corrida verde de 5-10 min pero sin línea EMBUDO → versión vieja de agentes.py.
+6. `AVISO: no se pudo publicar estado.json...` → la corrida sigue; el hijo usa
+   el último estado válido. No crítico.
+7. Corrida verde de 5-10 min pero sin línea EMBUDO → versión vieja de agentes.py.
 
 ## Dónde vive cada parámetro (no buscar en el archivo equivocado)
 
@@ -235,13 +261,8 @@ dónde mirar y por qué; la decisión, el tamaño y el riesgo son del operador.
 Sin dinero real conectado.
 ````
 
-Y **un archivo nuevo** que quedó pendiente desde el principio: repo → **Add file** → `.gitignore` con estas dos líneas:
+**Commit:** mensaje `leeme3: documenta estado.json + dedup semanal en log sano`.
 
-```
-.cache_edgar/
-__pycache__/
-```
+Fijate un detalle extra que aproveché: en la fila `fundamentos` de la tabla actualicé la nota — decía solo "no tiene efecto" y ahora también dice *"Será el modelo del scoring del hijo"*. Esa sección huérfana del config de la madre es la que va a encontrar su hogar en el `analista.py`, como quedó acordado en el leeme4.
 
-Sin eso, el paso del workflow que commitea el historial puede arrastrar la cache de EDGAR (cientos de JSONs) y ensuciar el repo.
-
-**Después del último commit, el test real es la corrida de las 20:00 hs.** En el log tiene que aparecer la línea `EMBUDO: ...` y los `[insiders-universo]`. Si querés, mañana me pegás ese log y lo verificamos juntos contra el README — es la mejor manera de confirmar que todo el sistema quedó cerrado como lo documentamos.
+Con este commit, **la madre queda oficialmente terminada: 3/3 toques hechos y manual al día**. Siguiente estación, el corazón del hijo: su `main.py` en dos etapas (primera etapa: leer madre + hoja + archivar en `historial`, con botón de prueba; segunda: avisos ntfy y fichas). Cuando hayas commiteado, decime y arrancamos. 🚀
