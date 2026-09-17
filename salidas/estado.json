@@ -1,15 +1,24 @@
 {
   "version": 1,
-  "fecha": "2026-09-16",
+  "fecha": "2026-09-17",
   "corrida_ok": true,
-  "embudo": "entrada 28/177 | setups 0 | vigilancia 4 | sectores 0",
+  "embudo": "entrada 27/177 | setups 0 | vigilancia 5 | sectores 0",
   "setups": [],
   "vigilancia": [
     {
+      "ticker": "GE",
+      "sector": "Industrials",
+      "precio": 313.47,
+      "rsi": 33.4,
+      "rsi_dias": 0,
+      "macd_dias": null,
+      "n_fondos": 1
+    },
+    {
       "ticker": "SBUX",
       "sector": "Consumer Cyclical",
-      "precio": 97.34,
-      "rsi": 31.9,
+      "precio": 96.67,
+      "rsi": 30.6,
       "rsi_dias": 0,
       "macd_dias": null,
       "n_fondos": 0
@@ -17,17 +26,8 @@
     {
       "ticker": "BAC",
       "sector": "Financial Services",
-      "precio": 57.9,
-      "rsi": 29.0,
-      "rsi_dias": 0,
-      "macd_dias": null,
-      "n_fondos": 0
-    },
-    {
-      "ticker": "VNQ",
-      "sector": "Real Estate",
-      "precio": 93.48,
-      "rsi": 30.8,
+      "precio": 58.18,
+      "rsi": 31.3,
       "rsi_dias": 0,
       "macd_dias": null,
       "n_fondos": 0
@@ -35,9 +35,18 @@
     {
       "ticker": "UNH",
       "sector": "Healthcare",
-      "precio": 375.26,
-      "rsi": 37.0,
-      "rsi_dias": 18,
+      "precio": 375.21,
+      "rsi": 36.9,
+      "rsi_dias": 19,
+      "macd_dias": null,
+      "n_fondos": 0
+    },
+    {
+      "ticker": "VNQ",
+      "sector": "Real Estate",
+      "precio": 93.81,
+      "rsi": 33.7,
+      "rsi_dias": 0,
       "macd_dias": null,
       "n_fondos": 0
     }
