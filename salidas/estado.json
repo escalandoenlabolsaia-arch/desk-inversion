@@ -1,15 +1,33 @@
 {
   "version": 1,
-  "fecha": "2026-09-17",
+  "fecha": "2026-09-18",
   "corrida_ok": true,
-  "embudo": "entrada 27/177 | setups 0 | vigilancia 5 | sectores 0",
+  "embudo": "entrada 24/177 | setups 0 | vigilancia 7 | sectores 0",
   "setups": [],
   "vigilancia": [
     {
+      "ticker": "AMGN",
+      "sector": "Healthcare",
+      "precio": 385.65,
+      "rsi": 40.1,
+      "rsi_dias": 2,
+      "macd_dias": null,
+      "n_fondos": 0
+    },
+    {
+      "ticker": "BRK-B",
+      "sector": "Financial Services",
+      "precio": 509.77,
+      "rsi": 52.3,
+      "rsi_dias": null,
+      "macd_dias": 8,
+      "n_fondos": 0
+    },
+    {
       "ticker": "GE",
       "sector": "Industrials",
-      "precio": 313.47,
-      "rsi": 33.4,
+      "precio": 314.27,
+      "rsi": 34.2,
       "rsi_dias": 0,
       "macd_dias": null,
       "n_fondos": 1
@@ -17,35 +35,35 @@
     {
       "ticker": "SBUX",
       "sector": "Consumer Cyclical",
-      "precio": 96.67,
-      "rsi": 30.6,
+      "precio": 95.83,
+      "rsi": 29.0,
       "rsi_dias": 0,
       "macd_dias": null,
+      "n_fondos": 0
+    },
+    {
+      "ticker": "UNP",
+      "sector": "Industrials",
+      "precio": 279.37,
+      "rsi": 32.5,
+      "rsi_dias": 0,
+      "macd_dias": null,
+      "n_fondos": 0
+    },
+    {
+      "ticker": "PM",
+      "sector": "Consumer Defensive",
+      "precio": 188.62,
+      "rsi": 48.7,
+      "rsi_dias": null,
+      "macd_dias": 4,
       "n_fondos": 0
     },
     {
       "ticker": "BAC",
       "sector": "Financial Services",
-      "precio": 58.18,
-      "rsi": 31.3,
-      "rsi_dias": 0,
-      "macd_dias": null,
-      "n_fondos": 0
-    },
-    {
-      "ticker": "UNH",
-      "sector": "Healthcare",
-      "precio": 375.21,
-      "rsi": 36.9,
-      "rsi_dias": 19,
-      "macd_dias": null,
-      "n_fondos": 0
-    },
-    {
-      "ticker": "VNQ",
-      "sector": "Real Estate",
-      "precio": 93.81,
-      "rsi": 33.7,
+      "precio": 57.73,
+      "rsi": 29.7,
       "rsi_dias": 0,
       "macd_dias": null,
       "n_fondos": 0
