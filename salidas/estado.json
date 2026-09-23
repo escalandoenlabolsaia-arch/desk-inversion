@@ -1,15 +1,15 @@
 {
   "version": 1,
-  "fecha": "2026-09-22",
+  "fecha": "2026-09-23",
   "corrida_ok": true,
-  "embudo": "entrada 25/177 | setups 0 | vigilancia 8 | sectores 0",
+  "embudo": "entrada 24/177 | setups 0 | vigilancia 11 | sectores 0",
   "setups": [],
   "vigilancia": [
     {
-      "ticker": "XLF",
+      "ticker": "VFH",
       "sector": "Financial Services",
-      "precio": 54.8,
-      "rsi": 32.2,
+      "precio": 132.87,
+      "rsi": 28.4,
       "rsi_dias": 0,
       "macd_dias": null,
       "n_fondos": 0
@@ -17,26 +17,26 @@
     {
       "ticker": "PM",
       "sector": "Consumer Defensive",
-      "precio": 190.23,
-      "rsi": 51.7,
+      "precio": 190.84,
+      "rsi": 52.6,
       "rsi_dias": null,
-      "macd_dias": 6,
-      "n_fondos": 0
-    },
-    {
-      "ticker": "UNP",
-      "sector": "Industrials",
-      "precio": 274.41,
-      "rsi": 33.2,
-      "rsi_dias": 0,
-      "macd_dias": null,
+      "macd_dias": 0,
       "n_fondos": 0
     },
     {
       "ticker": "DASH",
       "sector": "Consumer Cyclical",
-      "precio": 192.21,
-      "rsi": 34.9,
+      "precio": 189.27,
+      "rsi": 32.9,
+      "rsi_dias": 0,
+      "macd_dias": null,
+      "n_fondos": 0
+    },
+    {
+      "ticker": "XLF",
+      "sector": "Financial Services",
+      "precio": 54.54,
+      "rsi": 30.6,
       "rsi_dias": 0,
       "macd_dias": null,
       "n_fondos": 0
@@ -44,8 +44,8 @@
     {
       "ticker": "SBUX",
       "sector": "Consumer Cyclical",
-      "precio": 95.11,
-      "rsi": 28.3,
+      "precio": 94.14,
+      "rsi": 25.9,
       "rsi_dias": 0,
       "macd_dias": null,
       "n_fondos": 0
@@ -53,8 +53,35 @@
     {
       "ticker": "RTX",
       "sector": "Industrials",
-      "precio": 190.99,
-      "rsi": 27.8,
+      "precio": 192.19,
+      "rsi": 29.2,
+      "rsi_dias": 0,
+      "macd_dias": null,
+      "n_fondos": 0
+    },
+    {
+      "ticker": "WFC",
+      "sector": "Financial Services",
+      "precio": 81.9,
+      "rsi": 34.1,
+      "rsi_dias": 0,
+      "macd_dias": null,
+      "n_fondos": 0
+    },
+    {
+      "ticker": "GE",
+      "sector": "Industrials",
+      "precio": 319.8,
+      "rsi": 39.6,
+      "rsi_dias": 2,
+      "macd_dias": null,
+      "n_fondos": 1
+    },
+    {
+      "ticker": "JPM",
+      "sector": "Financial Services",
+      "precio": 337.53,
+      "rsi": 33.4,
       "rsi_dias": 0,
       "macd_dias": null,
       "n_fondos": 0
@@ -62,20 +89,20 @@
     {
       "ticker": "LLY",
       "sector": "Healthcare",
-      "precio": 1170.14,
-      "rsi": 52.6,
+      "precio": 1150.99,
+      "rsi": 46.9,
       "rsi_dias": null,
       "macd_dias": 1,
       "n_fondos": 0
     },
     {
-      "ticker": "GE",
+      "ticker": "UNP",
       "sector": "Industrials",
-      "precio": 319.22,
-      "rsi": 39.1,
-      "rsi_dias": 2,
+      "precio": 275.53,
+      "rsi": 35.0,
+      "rsi_dias": 0,
       "macd_dias": null,
-      "n_fondos": 1
+      "n_fondos": 0
     }
   ],
   "insiders_universo": []
