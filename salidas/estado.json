@@ -1,24 +1,15 @@
 {
   "version": 1,
-  "fecha": "2026-09-24",
+  "fecha": "2026-09-25",
   "corrida_ok": true,
-  "embudo": "entrada 19/177 | setups 0 | vigilancia 8 | sectores 0",
+  "embudo": "entrada 23/177 | setups 0 | vigilancia 7 | sectores 0",
   "setups": [],
   "vigilancia": [
     {
       "ticker": "VFH",
       "sector": "Financial Services",
-      "precio": 132.85,
-      "rsi": 28.4,
-      "rsi_dias": 0,
-      "macd_dias": null,
-      "n_fondos": 0
-    },
-    {
-      "ticker": "DASH",
-      "sector": "Consumer Cyclical",
-      "precio": 187.53,
-      "rsi": 31.8,
+      "precio": 133.67,
+      "rsi": 33.9,
       "rsi_dias": 0,
       "macd_dias": null,
       "n_fondos": 0
@@ -26,17 +17,17 @@
     {
       "ticker": "JPM",
       "sector": "Financial Services",
-      "precio": 338.56,
-      "rsi": 35.1,
-      "rsi_dias": 1,
+      "precio": 343.06,
+      "rsi": 41.7,
+      "rsi_dias": 2,
       "macd_dias": null,
       "n_fondos": 0
     },
     {
-      "ticker": "WFC",
-      "sector": "Financial Services",
-      "precio": 82.18,
-      "rsi": 35.2,
+      "ticker": "ABNB",
+      "sector": "Consumer Cyclical",
+      "precio": 157.47,
+      "rsi": 38.3,
       "rsi_dias": 1,
       "macd_dias": null,
       "n_fondos": 0
@@ -44,36 +35,36 @@
     {
       "ticker": "XLF",
       "sector": "Financial Services",
-      "precio": 54.53,
-      "rsi": 30.6,
+      "precio": 54.84,
+      "rsi": 34.9,
       "rsi_dias": 0,
+      "macd_dias": null,
+      "n_fondos": 0
+    },
+    {
+      "ticker": "DASH",
+      "sector": "Consumer Cyclical",
+      "precio": 193.36,
+      "rsi": 39.8,
+      "rsi_dias": 1,
       "macd_dias": null,
       "n_fondos": 0
     },
     {
       "ticker": "UNP",
       "sector": "Industrials",
-      "precio": 274.07,
-      "rsi": 33.7,
+      "precio": 273.79,
+      "rsi": 33.5,
       "rsi_dias": 0,
       "macd_dias": null,
       "n_fondos": 0
     },
     {
-      "ticker": "RTX",
-      "sector": "Industrials",
-      "precio": 188.61,
-      "rsi": 25.2,
-      "rsi_dias": 0,
-      "macd_dias": null,
-      "n_fondos": 0
-    },
-    {
-      "ticker": "PM",
-      "sector": "Consumer Defensive",
-      "precio": 191.5,
-      "rsi": 53.7,
-      "rsi_dias": null,
+      "ticker": "LYV",
+      "sector": "Communication Services",
+      "precio": 170.87,
+      "rsi": 43.4,
+      "rsi_dias": 5,
       "macd_dias": 1,
       "n_fondos": 0
     }
