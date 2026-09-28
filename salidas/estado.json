@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "fecha": "2026-09-27",
+  "fecha": "2026-09-28",
   "corrida_ok": true,
   "embudo": "entrada 23/177 | setups 0 | vigilancia 7 | sectores 0",
   "setups": [],
@@ -8,8 +8,8 @@
     {
       "ticker": "VFH",
       "sector": "Financial Services",
-      "precio": 133.67,
-      "rsi": 33.9,
+      "precio": 132.11,
+      "rsi": 29.8,
       "rsi_dias": 0,
       "macd_dias": null,
       "n_fondos": 0
@@ -17,44 +17,17 @@
     {
       "ticker": "JPM",
       "sector": "Financial Services",
-      "precio": 343.06,
-      "rsi": 41.7,
-      "rsi_dias": 2,
-      "macd_dias": null,
-      "n_fondos": 0
-    },
-    {
-      "ticker": "ABNB",
-      "sector": "Consumer Cyclical",
-      "precio": 157.47,
-      "rsi": 38.3,
-      "rsi_dias": 1,
+      "precio": 336.59,
+      "rsi": 36.0,
+      "rsi_dias": 3,
       "macd_dias": null,
       "n_fondos": 0
     },
     {
       "ticker": "XLF",
       "sector": "Financial Services",
-      "precio": 54.84,
-      "rsi": 34.9,
-      "rsi_dias": 0,
-      "macd_dias": null,
-      "n_fondos": 0
-    },
-    {
-      "ticker": "DASH",
-      "sector": "Consumer Cyclical",
-      "precio": 193.36,
-      "rsi": 39.8,
-      "rsi_dias": 1,
-      "macd_dias": null,
-      "n_fondos": 0
-    },
-    {
-      "ticker": "UNP",
-      "sector": "Industrials",
-      "precio": 273.79,
-      "rsi": 33.5,
+      "precio": 54.19,
+      "rsi": 30.6,
       "rsi_dias": 0,
       "macd_dias": null,
       "n_fondos": 0
@@ -62,10 +35,37 @@
     {
       "ticker": "LYV",
       "sector": "Communication Services",
-      "precio": 170.87,
-      "rsi": 43.4,
-      "rsi_dias": 5,
-      "macd_dias": 1,
+      "precio": 171.89,
+      "rsi": 46.0,
+      "rsi_dias": 6,
+      "macd_dias": 2,
+      "n_fondos": 0
+    },
+    {
+      "ticker": "EXPE",
+      "sector": "Consumer Cyclical",
+      "precio": 264.23,
+      "rsi": 35.7,
+      "rsi_dias": 2,
+      "macd_dias": null,
+      "n_fondos": 0
+    },
+    {
+      "ticker": "ABNB",
+      "sector": "Consumer Cyclical",
+      "precio": 156.08,
+      "rsi": 37.2,
+      "rsi_dias": 2,
+      "macd_dias": null,
+      "n_fondos": 0
+    },
+    {
+      "ticker": "SCHW",
+      "sector": "Financial Services",
+      "precio": 98.3,
+      "rsi": 29.8,
+      "rsi_dias": 0,
+      "macd_dias": null,
       "n_fondos": 0
     }
   ],
