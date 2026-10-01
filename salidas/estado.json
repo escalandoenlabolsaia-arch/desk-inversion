@@ -1,24 +1,51 @@
 {
   "version": 1,
-  "fecha": "2026-09-29",
+  "fecha": "2026-10-01",
   "corrida_ok": true,
-  "embudo": "entrada 23/177 | setups 0 | vigilancia 7 | sectores 0",
+  "embudo": "entrada 23/177 | setups 0 | vigilancia 8 | sectores 0",
   "setups": [],
   "vigilancia": [
     {
-      "ticker": "VFH",
-      "sector": "Financial Services",
-      "precio": 131.6,
-      "rsi": 28.6,
-      "rsi_dias": 0,
-      "macd_dias": null,
+      "ticker": "XLV",
+      "sector": "Healthcare",
+      "precio": 168.42,
+      "rsi": 49.0,
+      "rsi_dias": null,
+      "macd_dias": 3,
       "n_fondos": 0
     },
     {
       "ticker": "XLF",
       "sector": "Financial Services",
-      "precio": 54.01,
-      "rsi": 29.5,
+      "precio": 53.4,
+      "rsi": 26.2,
+      "rsi_dias": 0,
+      "macd_dias": null,
+      "n_fondos": 0
+    },
+    {
+      "ticker": "LLY",
+      "sector": "Healthcare",
+      "precio": 1157.08,
+      "rsi": 47.0,
+      "rsi_dias": null,
+      "macd_dias": 7,
+      "n_fondos": 0
+    },
+    {
+      "ticker": "JPM",
+      "sector": "Financial Services",
+      "precio": 330.83,
+      "rsi": 31.6,
+      "rsi_dias": 0,
+      "macd_dias": null,
+      "n_fondos": 0
+    },
+    {
+      "ticker": "VFH",
+      "sector": "Financial Services",
+      "precio": 130.09,
+      "rsi": 25.3,
       "rsi_dias": 0,
       "macd_dias": null,
       "n_fondos": 0
@@ -26,45 +53,27 @@
     {
       "ticker": "DASH",
       "sector": "Consumer Cyclical",
-      "precio": 187.1,
-      "rsi": 39.3,
-      "rsi_dias": 1,
-      "macd_dias": null,
-      "n_fondos": 0
-    },
-    {
-      "ticker": "EXPE",
-      "sector": "Consumer Cyclical",
-      "precio": 266.33,
-      "rsi": 37.4,
-      "rsi_dias": 3,
-      "macd_dias": null,
-      "n_fondos": 0
-    },
-    {
-      "ticker": "ABNB",
-      "sector": "Consumer Cyclical",
-      "precio": 156.96,
-      "rsi": 38.4,
-      "rsi_dias": 3,
+      "precio": 183.55,
+      "rsi": 37.1,
+      "rsi_dias": 2,
       "macd_dias": null,
       "n_fondos": 0
     },
     {
       "ticker": "LYV",
       "sector": "Communication Services",
-      "precio": 171.09,
-      "rsi": 44.3,
-      "rsi_dias": 7,
-      "macd_dias": 3,
+      "precio": 169.3,
+      "rsi": 40.7,
+      "rsi_dias": 8,
+      "macd_dias": 4,
       "n_fondos": 0
     },
     {
-      "ticker": "JPM",
-      "sector": "Financial Services",
-      "precio": 334.98,
-      "rsi": 34.7,
-      "rsi_dias": 0,
+      "ticker": "ABNB",
+      "sector": "Consumer Cyclical",
+      "precio": 160.65,
+      "rsi": 43.6,
+      "rsi_dias": 4,
       "macd_dias": null,
       "n_fondos": 0
     }
