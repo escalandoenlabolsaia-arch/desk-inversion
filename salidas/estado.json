@@ -1,80 +1,71 @@
 {
   "version": 1,
-  "fecha": "2026-10-01",
+  "fecha": "2026-10-02",
   "corrida_ok": true,
-  "embudo": "entrada 23/177 | setups 0 | vigilancia 8 | sectores 0",
+  "embudo": "entrada 24/177 | setups 0 | vigilancia 7 | sectores 0",
   "setups": [],
   "vigilancia": [
     {
-      "ticker": "XLV",
-      "sector": "Healthcare",
-      "precio": 168.42,
-      "rsi": 49.0,
-      "rsi_dias": null,
-      "macd_dias": 3,
-      "n_fondos": 0
-    },
-    {
-      "ticker": "XLF",
-      "sector": "Financial Services",
-      "precio": 53.4,
-      "rsi": 26.2,
-      "rsi_dias": 0,
-      "macd_dias": null,
-      "n_fondos": 0
-    },
-    {
-      "ticker": "LLY",
-      "sector": "Healthcare",
-      "precio": 1157.08,
-      "rsi": 47.0,
-      "rsi_dias": null,
-      "macd_dias": 7,
-      "n_fondos": 0
-    },
-    {
-      "ticker": "JPM",
-      "sector": "Financial Services",
-      "precio": 330.83,
-      "rsi": 31.6,
-      "rsi_dias": 0,
-      "macd_dias": null,
-      "n_fondos": 0
-    },
-    {
       "ticker": "VFH",
       "sector": "Financial Services",
-      "precio": 130.09,
-      "rsi": 25.3,
+      "precio": 130.38,
+      "rsi": 27.0,
       "rsi_dias": 0,
-      "macd_dias": null,
-      "n_fondos": 0
-    },
-    {
-      "ticker": "DASH",
-      "sector": "Consumer Cyclical",
-      "precio": 183.55,
-      "rsi": 37.1,
-      "rsi_dias": 2,
       "macd_dias": null,
       "n_fondos": 0
     },
     {
       "ticker": "LYV",
       "sector": "Communication Services",
-      "precio": 169.3,
-      "rsi": 40.7,
-      "rsi_dias": 8,
+      "precio": 166.85,
+      "rsi": 36.3,
+      "rsi_dias": 9,
+      "macd_dias": 5,
+      "n_fondos": 0
+    },
+    {
+      "ticker": "XLV",
+      "sector": "Healthcare",
+      "precio": 166.2,
+      "rsi": 42.6,
+      "rsi_dias": null,
       "macd_dias": 4,
       "n_fondos": 0
     },
     {
-      "ticker": "ABNB",
-      "sector": "Consumer Cyclical",
-      "precio": 160.65,
-      "rsi": 43.6,
-      "rsi_dias": 4,
+      "ticker": "XLF",
+      "sector": "Financial Services",
+      "precio": 53.46,
+      "rsi": 27.0,
+      "rsi_dias": 0,
       "macd_dias": null,
+      "n_fondos": 0
+    },
+    {
+      "ticker": "JPM",
+      "sector": "Financial Services",
+      "precio": 333.18,
+      "rsi": 35.2,
+      "rsi_dias": 1,
+      "macd_dias": null,
+      "n_fondos": 0
+    },
+    {
+      "ticker": "LLY",
+      "sector": "Healthcare",
+      "precio": 1149.85,
+      "rsi": 45.0,
+      "rsi_dias": null,
+      "macd_dias": 8,
+      "n_fondos": 0
+    },
+    {
+      "ticker": "SHW",
+      "sector": "Basic Materials",
+      "precio": 320.78,
+      "rsi": 41.7,
+      "rsi_dias": 15,
+      "macd_dias": 6,
       "n_fondos": 0
     }
   ],
