@@ -1,78 +1,96 @@
 {
   "version": 1,
-  "fecha": "2026-10-06",
+  "fecha": "2026-10-07",
   "corrida_ok": true,
-  "embudo": "entrada 25/177 | setups 0 | vigilancia 8 | sectores 0",
+  "embudo": "entrada 25/177 | setups 0 | vigilancia 10 | sectores 0",
   "setups": [],
   "vigilancia": [
     {
-      "ticker": "JNJ",
-      "sector": "Healthcare",
-      "precio": 252.93,
-      "rsi": 29.6,
-      "rsi_dias": 0,
-      "macd_dias": null,
-      "n_fondos": 1
-    },
-    {
-      "ticker": "LYV",
-      "sector": "Communication Services",
-      "precio": 170.67,
-      "rsi": 46.3,
-      "rsi_dias": 11,
-      "macd_dias": 7,
+      "ticker": "UNP",
+      "sector": "Industrials",
+      "precio": 276.61,
+      "rsi": 42.3,
+      "rsi_dias": 3,
+      "macd_dias": 2,
       "n_fondos": 0
     },
     {
       "ticker": "XLV",
       "sector": "Healthcare",
-      "precio": 167.37,
-      "rsi": 46.8,
+      "precio": 167.09,
+      "rsi": 46.0,
       "rsi_dias": null,
-      "macd_dias": 6,
+      "macd_dias": 7,
+      "n_fondos": 0
+    },
+    {
+      "ticker": "LYV",
+      "sector": "Communication Services",
+      "precio": 171.8,
+      "rsi": 49.0,
+      "rsi_dias": 12,
+      "macd_dias": 8,
+      "n_fondos": 0
+    },
+    {
+      "ticker": "JNJ",
+      "sector": "Healthcare",
+      "precio": 254.78,
+      "rsi": 33.6,
+      "rsi_dias": 0,
+      "macd_dias": null,
+      "n_fondos": 1
+    },
+    {
+      "ticker": "SHW",
+      "sector": "Basic Materials",
+      "precio": 321.16,
+      "rsi": 43.1,
+      "rsi_dias": 18,
+      "macd_dias": 9,
+      "n_fondos": 0
+    },
+    {
+      "ticker": "DASH",
+      "sector": "Consumer Cyclical",
+      "precio": 193.62,
+      "rsi": 47.5,
+      "rsi_dias": 6,
+      "macd_dias": 0,
+      "n_fondos": 0
+    },
+    {
+      "ticker": "ABNB",
+      "sector": "Consumer Cyclical",
+      "precio": 160.39,
+      "rsi": 43.9,
+      "rsi_dias": 8,
+      "macd_dias": 1,
       "n_fondos": 0
     },
     {
       "ticker": "BAC",
       "sector": "Financial Services",
-      "precio": 54.0,
-      "rsi": 24.8,
+      "precio": 54.09,
+      "rsi": 25.7,
       "rsi_dias": 0,
       "macd_dias": null,
       "n_fondos": 0
     },
     {
-      "ticker": "UNP",
-      "sector": "Industrials",
-      "precio": 277.06,
-      "rsi": 42.9,
-      "rsi_dias": 2,
-      "macd_dias": 1,
-      "n_fondos": 0
-    },
-    {
-      "ticker": "SHW",
-      "sector": "Basic Materials",
-      "precio": 318.46,
-      "rsi": 39.8,
-      "rsi_dias": 17,
-      "macd_dias": 8,
-      "n_fondos": 0
-    },
-    {
       "ticker": "XLF",
       "sector": "Financial Services",
-      "precio": 53.88,
-      "rsi": 33.4,
-      "rsi_dias": 0,
+      "precio": 54.01,
+      "rsi": 35.3,
+      "rsi_dias": 1,
       "macd_dias": null,
       "n_fondos": 0
     },
     {
       "ticker": "VFH",
       "sector": "Financial Services",
-      "precio": 131.4,
-      "rsi": 33.3,
+      "precio": 131.65,
+      "rsi": 34.8,
       "rsi_dias": 0,
       "macd_dias": null,
       "n_fondos": 0
