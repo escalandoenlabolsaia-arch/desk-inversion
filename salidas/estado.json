@@ -1,71 +1,84 @@
 {
   "version": 1,
-  "fecha": "2026-10-09",
+  "fecha": "2026-10-10",
   "corrida_ok": true,
-  "embudo": "entrada 21/177 | setups 0 | vigilancia 7 | sectores 0",
-  "setups": [],
-  "vigilancia": [
-    {
-      "ticker": "VHT",
-      "sector": "Healthcare",
-      "precio": 313.85,
-      "rsi": 46.9,
-      "rsi_dias": null,
-      "macd_dias": 9,
-      "n_fondos": 0
-    },
+  "embudo": "entrada 18/177 | setups 1 | vigilancia 7 | sectores 0",
+  "setups": [
     {
       "ticker": "ABT",
       "sector": "Healthcare",
-      "precio": 98.49,
-      "rsi": 37.9,
-      "rsi_dias": 4,
+      "precio": 99.6,
+      "rsi": 42.3,
+      "rsi_dias": 5,
+      "macd_dias": 0,
+      "vol_ratio": 0.73,
+      "vol_dias": 1,
+      "n_fondos": 0,
+      "insiders_neto_usd": 0.0
+    }
+  ],
+  "vigilancia": [
+    {
+      "ticker": "DE",
+      "sector": "Industrials",
+      "precio": 620.93,
+      "rsi": 33.5,
+      "rsi_dias": 0,
       "macd_dias": null,
       "n_fondos": 0
     },
     {
-      "ticker": "COF",
+      "ticker": "XLF",
       "sector": "Financial Services",
-      "precio": 199.4,
-      "rsi": 45.4,
-      "rsi_dias": 5,
+      "precio": 54.73,
+      "rsi": 46.4,
+      "rsi_dias": 2,
       "macd_dias": 0,
       "n_fondos": 0
     },
     {
       "ticker": "JNJ",
       "sector": "Healthcare",
-      "precio": 256.48,
-      "rsi": 38.4,
-      "rsi_dias": 2,
+      "precio": 261.44,
+      "rsi": 46.9,
+      "rsi_dias": 3,
       "macd_dias": null,
       "n_fondos": 1
     },
     {
-      "ticker": "DASH",
-      "sector": "Consumer Cyclical",
-      "precio": 191.71,
-      "rsi": 46.0,
-      "rsi_dias": 8,
-      "macd_dias": 2,
+      "ticker": "COF",
+      "sector": "Financial Services",
+      "precio": 199.26,
+      "rsi": 45.2,
+      "rsi_dias": 6,
+      "macd_dias": 1,
       "n_fondos": 0
     },
     {
-      "ticker": "ABNB",
+      "ticker": "DASH",
       "sector": "Consumer Cyclical",
-      "precio": 163.23,
-      "rsi": 48.2,
-      "rsi_dias": 10,
+      "precio": 196.5,
+      "rsi": 50.8,
+      "rsi_dias": 9,
       "macd_dias": 3,
       "n_fondos": 0
     },
     {
       "ticker": "UNP",
       "sector": "Industrials",
-      "precio": 278.2,
-      "rsi": 46.4,
-      "rsi_dias": 5,
-      "macd_dias": 4,
+      "precio": 278.34,
+      "rsi": 46.6,
+      "rsi_dias": 6,
+      "macd_dias": 5,
+      "n_fondos": 0
+    },
+    {
+      "ticker": "VFH",
+      "sector": "Financial Services",
+      "precio": 133.12,
+      "rsi": 44.7,
+      "rsi_dias": 2,
+      "macd_dias": 0,
       "n_fondos": 0
     }
   ],
