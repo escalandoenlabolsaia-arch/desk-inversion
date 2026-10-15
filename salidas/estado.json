@@ -1,84 +1,78 @@
 {
   "version": 1,
-  "fecha": "2026-10-14",
+  "fecha": "2026-10-15",
   "corrida_ok": true,
-  "embudo": "entrada 14/177 | setups 1 | vigilancia 8 | sectores 0",
+  "embudo": "entrada 9/177 | setups 2 | vigilancia 6 | sectores 0",
   "setups": [
+    {
+      "ticker": "SCHW",
+      "sector": "Financial Services",
+      "precio": 96.8,
+      "rsi": 37.9,
+      "rsi_dias": 1,
+      "macd_dias": 0,
+      "vol_ratio": 1.57,
+      "vol_dias": 0,
+      "n_fondos": 0,
+      "insiders_neto_usd": 0.0
+    },
     {
       "ticker": "ABT",
       "sector": "Healthcare",
-      "precio": 102.61,
-      "rsi": 52.4,
-      "rsi_dias": 7,
-      "macd_dias": 2,
-      "vol_ratio": 1.05,
-      "vol_dias": 3,
+      "precio": 102.97,
+      "rsi": 53.5,
+      "rsi_dias": 8,
+      "macd_dias": 3,
+      "vol_ratio": 0.77,
+      "vol_dias": 4,
       "n_fondos": 0,
       "insiders_neto_usd": 0.0
     }
   ],
   "vigilancia": [
     {
-      "ticker": "JNJ",
+      "ticker": "MDT",
       "sector": "Healthcare",
-      "precio": 248.61,
-      "rsi": 34.5,
-      "rsi_dias": 0,
-      "macd_dias": null,
-      "n_fondos": 1
-    },
-    {
-      "ticker": "VHT",
-      "sector": "Healthcare",
-      "precio": 316.37,
-      "rsi": 50.3,
+      "precio": 94.23,
+      "rsi": 65.0,
       "rsi_dias": null,
-      "macd_dias": 1,
-      "n_fondos": 0
-    },
-    {
-      "ticker": "COF",
-      "sector": "Financial Services",
-      "precio": 198.07,
-      "rsi": 43.6,
-      "rsi_dias": 8,
-      "macd_dias": 3,
-      "n_fondos": 0
-    },
-    {
-      "ticker": "XLF",
-      "sector": "Financial Services",
-      "precio": 54.82,
-      "rsi": 47.5,
-      "rsi_dias": 4,
       "macd_dias": 2,
       "n_fondos": 0
     },
     {
-      "ticker": "DE",
-      "sector": "Industrials",
-      "precio": 650.0,
-      "rsi": 45.4,
-      "rsi_dias": 2,
-      "macd_dias": null,
+      "ticker": "VHT",
+      "sector": "Healthcare",
+      "precio": 323.15,
+      "rsi": 59.1,
+      "rsi_dias": null,
+      "macd_dias": 2,
       "n_fondos": 0
     },
     {
-      "ticker": "MDT",
+      "ticker": "JNJ",
       "sector": "Healthcare",
-      "precio": 93.01,
-      "rsi": 62.3,
-      "rsi_dias": null,
-      "macd_dias": 1,
+      "precio": 253.91,
+      "rsi": 41.5,
+      "rsi_dias": 1,
+      "macd_dias": null,
+      "n_fondos": 1
+    },
+    {
+      "ticker": "XLF",
+      "sector": "Financial Services",
+      "precio": 54.52,
+      "rsi": 44.5,
+      "rsi_dias": 5,
+      "macd_dias": 3,
       "n_fondos": 0
     },
     {
       "ticker": "UNP",
       "sector": "Industrials",
-      "precio": 282.36,
-      "rsi": 53.6,
-      "rsi_dias": 8,
-      "macd_dias": 7,
+      "precio": 286.43,
+      "rsi": 59.7,
+      "rsi_dias": 9,
+      "macd_dias": 8,
       "n_fondos": 0
     },
     {
