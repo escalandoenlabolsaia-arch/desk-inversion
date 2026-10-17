@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "fecha": "2026-10-16",
+  "fecha": "2026-10-17",
   "corrida_ok": true,
   "embudo": "entrada 9/177 | setups 0 | vigilancia 8 | sectores 0",
   "setups": [],
@@ -71,10 +71,10 @@
     {
       "ticker": "DASH",
       "sector": "Consumer Cyclical",
-      "precio": 184.01,
-      "rsi": 39.7,
-      "rsi_dias": 12,
-      "macd_dias": 6,
+      "precio": 193.05,
+      "rsi": 48.7,
+      "rsi_dias": 13,
+      "macd_dias": 7,
       "n_fondos": 0
     }
   ],
