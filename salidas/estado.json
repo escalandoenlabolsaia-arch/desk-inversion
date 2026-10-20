@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "fecha": "2026-10-19",
+  "fecha": "2026-10-20",
   "corrida_ok": true,
   "embudo": "entrada 8/177 | setups 0 | vigilancia 6 | sectores 0",
   "setups": [],
@@ -33,6 +33,15 @@
       "n_fondos": 0
     },
     {
+      "ticker": "ABT",
+      "sector": "Healthcare",
+      "precio": 104.06,
+      "rsi": 57.3,
+      "rsi_dias": 11,
+      "macd_dias": 6,
+      "n_fondos": 0
+    },
+    {
       "ticker": "JNJ",
       "sector": "Healthcare",
       "precio": 255.56,
@@ -40,15 +49,6 @@
       "rsi_dias": 3,
       "macd_dias": null,
       "n_fondos": 1
-    },
-    {
-      "ticker": "ABT",
-      "sector": "Healthcare",
-      "precio": 104.89,
-      "rsi": 60.6,
-      "rsi_dias": 10,
-      "macd_dias": 5,
-      "n_fondos": 0
     },
     {
       "ticker": "DASH",
