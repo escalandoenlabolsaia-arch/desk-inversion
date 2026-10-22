@@ -1,62 +1,57 @@
 {
   "version": 1,
-  "fecha": "2026-10-21",
+  "fecha": "2026-10-22",
   "corrida_ok": true,
-  "embudo": "entrada 10/177 | setups 0 | vigilancia 6 | sectores 0",
-  "setups": [],
-  "vigilancia": [
-    {
-      "ticker": "JNJ",
-      "sector": "Healthcare",
-      "precio": 253.79,
-      "rsi": 42.1,
-      "rsi_dias": 4,
-      "macd_dias": null,
-      "n_fondos": 1
-    },
+  "embudo": "entrada 11/177 | setups 1 | vigilancia 4 | sectores 0",
+  "setups": [
     {
       "ticker": "ABT",
       "sector": "Healthcare",
-      "precio": 104.06,
-      "rsi": 57.3,
-      "rsi_dias": 11,
-      "macd_dias": 6,
+      "precio": 102.45,
+      "rsi": 51.5,
+      "rsi_dias": 12,
+      "macd_dias": 7,
+      "vol_ratio": 1.53,
+      "vol_dias": 0,
+      "n_fondos": 0,
+      "insiders_neto_usd": 0.0
+    }
+  ],
+  "vigilancia": [
+    {
+      "ticker": "DHR",
+      "sector": "Healthcare",
+      "precio": 224.24,
+      "rsi": 56.1,
+      "rsi_dias": null,
+      "macd_dias": 4,
       "n_fondos": 0
     },
     {
       "ticker": "BMY",
       "sector": "Healthcare",
-      "precio": 58.83,
-      "rsi": 42.2,
-      "rsi_dias": 4,
-      "macd_dias": 1,
+      "precio": 61.68,
+      "rsi": 53.4,
+      "rsi_dias": 5,
+      "macd_dias": 2,
       "n_fondos": 0
     },
     {
       "ticker": "XLF",
       "sector": "Financial Services",
-      "precio": 55.06,
-      "rsi": 50.1,
-      "rsi_dias": 8,
-      "macd_dias": 6,
+      "precio": 55.72,
+      "rsi": 56.2,
+      "rsi_dias": 9,
+      "macd_dias": 7,
       "n_fondos": 0
     },
     {
       "ticker": "MDT",
       "sector": "Healthcare",
-      "precio": 92.77,
-      "rsi": 57.2,
+      "precio": 94.63,
+      "rsi": 61.7,
       "rsi_dias": null,
-      "macd_dias": 5,
-      "n_fondos": 0
-    },
-    {
-      "ticker": "DASH",
-      "sector": "Consumer Cyclical",
-      "precio": 193.53,
-      "rsi": 49.5,
-      "rsi_dias": 15,
-      "macd_dias": 9,
+      "macd_dias": 6,
       "n_fondos": 0
     }
   ],
