@@ -1,17 +1,17 @@
 {
   "version": 1,
-  "fecha": "2026-10-22",
+  "fecha": "2026-10-23",
   "corrida_ok": true,
-  "embudo": "entrada 11/177 | setups 1 | vigilancia 4 | sectores 0",
+  "embudo": "entrada 13/177 | setups 1 | vigilancia 6 | sectores 0",
   "setups": [
     {
       "ticker": "ABT",
       "sector": "Healthcare",
-      "precio": 102.45,
-      "rsi": 51.5,
-      "rsi_dias": 12,
-      "macd_dias": 7,
-      "vol_ratio": 1.53,
+      "precio": 100.51,
+      "rsi": 45.5,
+      "rsi_dias": 13,
+      "macd_dias": 8,
+      "vol_ratio": 2.46,
       "vol_dias": 0,
       "n_fondos": 0,
       "insiders_neto_usd": 0.0
@@ -19,39 +19,57 @@
   ],
   "vigilancia": [
     {
-      "ticker": "DHR",
-      "sector": "Healthcare",
-      "precio": 224.24,
-      "rsi": 56.1,
+      "ticker": "CF",
+      "sector": "Basic Materials",
+      "precio": 116.3,
+      "rsi": 43.5,
+      "rsi_dias": 8,
+      "macd_dias": 5,
+      "n_fondos": 0
+    },
+    {
+      "ticker": "FCX",
+      "sector": "Basic Materials",
+      "precio": 68.9,
+      "rsi": 42.3,
       "rsi_dias": null,
-      "macd_dias": 4,
+      "macd_dias": 8,
+      "n_fondos": 0
+    },
+    {
+      "ticker": "JNJ",
+      "sector": "Healthcare",
+      "precio": 257.78,
+      "rsi": 47.2,
+      "rsi_dias": 6,
+      "macd_dias": 0,
+      "n_fondos": 1
+    },
+    {
+      "ticker": "XLF",
+      "sector": "Financial Services",
+      "precio": 56.04,
+      "rsi": 58.9,
+      "rsi_dias": 10,
+      "macd_dias": 8,
       "n_fondos": 0
     },
     {
       "ticker": "BMY",
       "sector": "Healthcare",
-      "precio": 61.68,
-      "rsi": 53.4,
-      "rsi_dias": 5,
-      "macd_dias": 2,
-      "n_fondos": 0
-    },
-    {
-      "ticker": "XLF",
-      "sector": "Financial Services",
-      "precio": 55.72,
-      "rsi": 56.2,
-      "rsi_dias": 9,
-      "macd_dias": 7,
+      "precio": 61.12,
+      "rsi": 51.3,
+      "rsi_dias": 6,
+      "macd_dias": 3,
       "n_fondos": 0
     },
     {
       "ticker": "MDT",
       "sector": "Healthcare",
-      "precio": 94.63,
-      "rsi": 61.7,
+      "precio": 93.03,
+      "rsi": 56.3,
       "rsi_dias": null,
-      "macd_dias": 6,
+      "macd_dias": 7,
       "n_fondos": 0
     }
   ],
