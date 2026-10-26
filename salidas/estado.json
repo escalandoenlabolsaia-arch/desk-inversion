@@ -1,27 +1,36 @@
 {
   "version": 1,
-  "fecha": "2026-10-24",
+  "fecha": "2026-10-26",
   "corrida_ok": true,
-  "embudo": "entrada 8/177 | setups 0 | vigilancia 2 | sectores 0",
+  "embudo": "entrada 10/177 | setups 0 | vigilancia 3 | sectores 0",
   "setups": [],
   "vigilancia": [
     {
-      "ticker": "XLF",
-      "sector": "Financial Services",
-      "precio": 56.65,
-      "rsi": 63.4,
-      "rsi_dias": 11,
-      "macd_dias": 9,
+      "ticker": "UNP",
+      "sector": "Industrials",
+      "precio": 292.87,
+      "rsi": 61.8,
+      "rsi_dias": 16,
+      "macd_dias": null,
       "n_fondos": 0
     },
     {
       "ticker": "CF",
       "sector": "Basic Materials",
-      "precio": 118.56,
-      "rsi": 48.6,
-      "rsi_dias": 9,
-      "macd_dias": 6,
+      "precio": 120.68,
+      "rsi": 53.0,
+      "rsi_dias": 10,
+      "macd_dias": 7,
       "n_fondos": 0
+    },
+    {
+      "ticker": "JNJ",
+      "sector": "Healthcare",
+      "precio": 263.81,
+      "rsi": 53.1,
+      "rsi_dias": 8,
+      "macd_dias": 2,
+      "n_fondos": 1
     }
   ],
   "insiders_universo": []
