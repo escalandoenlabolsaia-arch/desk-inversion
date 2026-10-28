@@ -1,26 +1,26 @@
 {
   "version": 1,
-  "fecha": "2026-10-27",
+  "fecha": "2026-10-28",
   "corrida_ok": true,
   "embudo": "entrada 6/177 | setups 0 | vigilancia 2 | sectores 0",
   "setups": [],
   "vigilancia": [
     {
-      "ticker": "CF",
-      "sector": "Basic Materials",
-      "precio": 120.84,
-      "rsi": 53.3,
-      "rsi_dias": 11,
-      "macd_dias": 8,
+      "ticker": "BMY",
+      "sector": "Healthcare",
+      "precio": 61.55,
+      "rsi": 51.9,
+      "rsi_dias": 10,
+      "macd_dias": 7,
       "n_fondos": 0
     },
     {
-      "ticker": "BMY",
-      "sector": "Healthcare",
-      "precio": 61.61,
-      "rsi": 52.2,
-      "rsi_dias": 9,
-      "macd_dias": 6,
+      "ticker": "CF",
+      "sector": "Basic Materials",
+      "precio": 120.54,
+      "rsi": 52.6,
+      "rsi_dias": 12,
+      "macd_dias": 9,
       "n_fondos": 0
     }
   ],
