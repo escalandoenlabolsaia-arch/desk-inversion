@@ -1,19 +1,22 @@
 {
   "version": 1,
-  "fecha": "2026-10-29",
+  "fecha": "2026-10-30",
   "corrida_ok": true,
-  "embudo": "entrada 6/177 | setups 0 | vigilancia 1 | sectores 0",
-  "setups": [],
-  "vigilancia": [
+  "embudo": "entrada 4/177 | setups 1 | vigilancia 0 | sectores 1",
+  "setups": [
     {
-      "ticker": "BMY",
-      "sector": "Healthcare",
-      "precio": 60.57,
-      "rsi": 48.2,
-      "rsi_dias": 11,
-      "macd_dias": 8,
-      "n_fondos": 0
+      "ticker": "VZ",
+      "sector": "Communication Services",
+      "precio": 43.66,
+      "rsi": 44.3,
+      "rsi_dias": 13,
+      "macd_dias": 9,
+      "vol_ratio": 0.73,
+      "vol_dias": 3,
+      "n_fondos": 1,
+      "insiders_neto_usd": 0.0
     }
   ],
+  "vigilancia": [],
   "insiders_universo": []
 }
