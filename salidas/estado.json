@@ -1,19 +1,9 @@
 {
   "version": 1,
-  "fecha": "2026-11-02",
+  "fecha": "2026-11-03",
   "corrida_ok": true,
-  "embudo": "entrada 3/177 | setups 0 | vigilancia 1 | sectores 1",
+  "embudo": "entrada 5/177 | setups 0 | vigilancia 0 | sectores 0",
   "setups": [],
-  "vigilancia": [
-    {
-      "ticker": "VZ",
-      "sector": "Communication Services",
-      "precio": 44.73,
-      "rsi": 49.8,
-      "rsi_dias": 14,
-      "macd_dias": null,
-      "n_fondos": 1
-    }
-  ],
+  "vigilancia": [],
   "insiders_universo": []
 }
