@@ -1,26 +1,48 @@
 {
   "version": 1,
-  "fecha": "2026-11-05",
+  "fecha": "2026-11-06",
   "corrida_ok": true,
-  "embudo": "entrada 8/177 | setups 0 | vigilancia 2 | sectores 2",
-  "setups": [],
+  "embudo": "entrada 9/177 | setups 1 | vigilancia 3 | sectores 4",
+  "setups": [
+    {
+      "ticker": "DE",
+      "sector": "Industrials",
+      "precio": 663.31,
+      "rsi": 52.8,
+      "rsi_dias": 19,
+      "macd_dias": 5,
+      "vol_ratio": 1.55,
+      "vol_dias": 0,
+      "n_fondos": 0,
+      "insiders_neto_usd": 0.0
+    }
+  ],
   "vigilancia": [
     {
-      "ticker": "PLTR",
-      "sector": "Technology",
-      "precio": 171.7,
-      "rsi": 33.5,
+      "ticker": "XLE",
+      "sector": "Energy",
+      "precio": 61.63,
+      "rsi": 34.1,
       "rsi_dias": 0,
       "macd_dias": null,
       "n_fondos": 0
     },
     {
-      "ticker": "T",
-      "sector": "Communication Services",
-      "precio": 21.83,
-      "rsi": 43.5,
-      "rsi_dias": 4,
-      "macd_dias": 0,
+      "ticker": "VDE",
+      "sector": "Energy",
+      "precio": 171.07,
+      "rsi": 33.2,
+      "rsi_dias": 0,
+      "macd_dias": null,
+      "n_fondos": 0
+    },
+    {
+      "ticker": "OXY",
+      "sector": "Energy",
+      "precio": 56.36,
+      "rsi": 33.4,
+      "rsi_dias": 0,
+      "macd_dias": null,
       "n_fondos": 0
     }
   ],
