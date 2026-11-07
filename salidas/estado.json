@@ -1,27 +1,23 @@
 {
   "version": 1,
-  "fecha": "2026-11-06",
+  "fecha": "2026-11-07",
   "corrida_ok": true,
-  "embudo": "entrada 9/177 | setups 1 | vigilancia 3 | sectores 4",
-  "setups": [
-    {
-      "ticker": "DE",
-      "sector": "Industrials",
-      "precio": 663.31,
-      "rsi": 52.8,
-      "rsi_dias": 19,
-      "macd_dias": 5,
-      "vol_ratio": 1.55,
-      "vol_dias": 0,
-      "n_fondos": 0,
-      "insiders_neto_usd": 0.0
-    }
-  ],
+  "embudo": "entrada 10/177 | setups 0 | vigilancia 4 | sectores 0",
+  "setups": [],
   "vigilancia": [
+    {
+      "ticker": "PM",
+      "sector": "Consumer Defensive",
+      "precio": 197.88,
+      "rsi": 45.9,
+      "rsi_dias": null,
+      "macd_dias": 6,
+      "n_fondos": 0
+    },
     {
       "ticker": "XLE",
       "sector": "Energy",
-      "precio": 61.63,
+      "precio": 61.62,
       "rsi": 34.1,
       "rsi_dias": 0,
       "macd_dias": null,
@@ -30,8 +26,8 @@
     {
       "ticker": "VDE",
       "sector": "Energy",
-      "precio": 171.07,
-      "rsi": 33.2,
+      "precio": 171.28,
+      "rsi": 33.6,
       "rsi_dias": 0,
       "macd_dias": null,
       "n_fondos": 0
@@ -39,8 +35,8 @@
     {
       "ticker": "OXY",
       "sector": "Energy",
-      "precio": 56.36,
-      "rsi": 33.4,
+      "precio": 56.38,
+      "rsi": 33.5,
       "rsi_dias": 0,
       "macd_dias": null,
       "n_fondos": 0
