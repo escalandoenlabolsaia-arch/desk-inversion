@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "fecha": "2026-11-07",
+  "fecha": "2026-11-09",
   "corrida_ok": true,
   "embudo": "entrada 10/177 | setups 0 | vigilancia 4 | sectores 0",
   "setups": [],
@@ -9,7 +9,7 @@
       "ticker": "PM",
       "sector": "Consumer Defensive",
       "precio": 197.88,
-      "rsi": 45.9,
+      "rsi": 46.2,
       "rsi_dias": null,
       "macd_dias": 6,
       "n_fondos": 0
