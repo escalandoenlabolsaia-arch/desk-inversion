@@ -1,43 +1,52 @@
 {
   "version": 1,
-  "fecha": "2026-11-09",
+  "fecha": "2026-11-10",
   "corrida_ok": true,
-  "embudo": "entrada 10/177 | setups 0 | vigilancia 4 | sectores 0",
+  "embudo": "entrada 9/177 | setups 0 | vigilancia 5 | sectores 0",
   "setups": [],
   "vigilancia": [
     {
-      "ticker": "PM",
-      "sector": "Consumer Defensive",
-      "precio": 197.88,
-      "rsi": 46.2,
-      "rsi_dias": null,
-      "macd_dias": 6,
-      "n_fondos": 0
-    },
-    {
-      "ticker": "XLE",
-      "sector": "Energy",
-      "precio": 61.62,
-      "rsi": 34.1,
-      "rsi_dias": 0,
-      "macd_dias": null,
-      "n_fondos": 0
-    },
-    {
       "ticker": "VDE",
       "sector": "Energy",
-      "precio": 171.28,
-      "rsi": 33.6,
-      "rsi_dias": 0,
+      "precio": 172.27,
+      "rsi": 35.3,
+      "rsi_dias": 1,
       "macd_dias": null,
+      "n_fondos": 0
+    },
+    {
+      "ticker": "PM",
+      "sector": "Consumer Defensive",
+      "precio": 193.12,
+      "rsi": 41.0,
+      "rsi_dias": null,
+      "macd_dias": 7,
       "n_fondos": 0
     },
     {
       "ticker": "OXY",
       "sector": "Energy",
-      "precio": 56.38,
-      "rsi": 33.5,
+      "precio": 55.76,
+      "rsi": 31.9,
       "rsi_dias": 0,
+      "macd_dias": null,
+      "n_fondos": 0
+    },
+    {
+      "ticker": "XLE",
+      "sector": "Energy",
+      "precio": 61.94,
+      "rsi": 35.6,
+      "rsi_dias": 1,
+      "macd_dias": null,
+      "n_fondos": 0
+    },
+    {
+      "ticker": "PLTR",
+      "sector": "Technology",
+      "precio": 169.2,
+      "rsi": 39.4,
+      "rsi_dias": 1,
       "macd_dias": null,
       "n_fondos": 0
     }
