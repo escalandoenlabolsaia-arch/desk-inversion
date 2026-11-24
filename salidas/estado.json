@@ -1,33 +1,24 @@
 {
   "version": 1,
-  "fecha": "2026-11-23",
+  "fecha": "2026-11-24",
   "corrida_ok": true,
-  "embudo": "entrada 15/177 | setups 0 | vigilancia 3 | sectores 0",
+  "embudo": "entrada 14/177 | setups 0 | vigilancia 2 | sectores 0",
   "setups": [],
   "vigilancia": [
     {
       "ticker": "PM",
       "sector": "Consumer Defensive",
-      "precio": 184.09,
-      "rsi": 32.7,
+      "precio": 182.5,
+      "rsi": 31.3,
       "rsi_dias": 0,
       "macd_dias": null,
       "n_fondos": 0
     },
     {
-      "ticker": "MSFT",
-      "sector": "Technology",
-      "precio": 484.52,
-      "rsi": 35.0,
-      "rsi_dias": null,
-      "macd_dias": 9,
-      "n_fondos": 0
-    },
-    {
       "ticker": "XLE",
       "sector": "Energy",
-      "precio": 60.51,
-      "rsi": 34.7,
+      "precio": 59.87,
+      "rsi": 32.9,
       "rsi_dias": 0,
       "macd_dias": null,
       "n_fondos": 0
