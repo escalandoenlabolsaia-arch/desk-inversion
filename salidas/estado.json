@@ -1,25 +1,25 @@
 {
   "version": 1,
-  "fecha": "2026-11-24",
+  "fecha": "2026-11-25",
   "corrida_ok": true,
-  "embudo": "entrada 14/177 | setups 0 | vigilancia 2 | sectores 0",
+  "embudo": "entrada 10/177 | setups 0 | vigilancia 2 | sectores 0",
   "setups": [],
   "vigilancia": [
     {
-      "ticker": "PM",
-      "sector": "Consumer Defensive",
-      "precio": 182.5,
-      "rsi": 31.3,
-      "rsi_dias": 0,
+      "ticker": "PLTR",
+      "sector": "Technology",
+      "precio": 161.18,
+      "rsi": 43.2,
+      "rsi_dias": 2,
       "macd_dias": null,
       "n_fondos": 0
     },
     {
       "ticker": "XLE",
       "sector": "Energy",
-      "precio": 59.87,
-      "rsi": 32.9,
-      "rsi_dias": 0,
+      "precio": 60.45,
+      "rsi": 36.1,
+      "rsi_dias": 1,
       "macd_dias": null,
       "n_fondos": 0
     }
