@@ -1,27 +1,40 @@
 {
   "version": 1,
-  "fecha": "2026-11-25",
+  "fecha": "2026-11-26",
   "corrida_ok": true,
-  "embudo": "entrada 10/177 | setups 0 | vigilancia 2 | sectores 0",
-  "setups": [],
-  "vigilancia": [
+  "embudo": "entrada 13/177 | setups 1 | vigilancia 2 | sectores 0",
+  "setups": [
     {
       "ticker": "PLTR",
       "sector": "Technology",
-      "precio": 161.18,
-      "rsi": 43.2,
-      "rsi_dias": 2,
-      "macd_dias": null,
+      "precio": 163.59,
+      "rsi": 45.1,
+      "rsi_dias": 3,
+      "macd_dias": 0,
+      "vol_ratio": 0.83,
+      "vol_dias": 3,
+      "n_fondos": 0,
+      "insiders_neto_usd": 0.0
+    }
+  ],
+  "vigilancia": [
+    {
+      "ticker": "TRGP",
+      "sector": "Energy",
+      "precio": 285.53,
+      "rsi": 48.5,
+      "rsi_dias": 13,
+      "macd_dias": 7,
       "n_fondos": 0
     },
     {
-      "ticker": "XLE",
+      "ticker": "PSX",
       "sector": "Energy",
-      "precio": 60.45,
-      "rsi": 36.1,
-      "rsi_dias": 1,
+      "precio": 236.08,
+      "rsi": 33.0,
+      "rsi_dias": 0,
       "macd_dias": null,
-      "n_fondos": 0
+      "n_fondos": 1
     }
   ],
   "insiders_universo": []
